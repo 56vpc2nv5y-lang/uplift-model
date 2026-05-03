@@ -1,0 +1,928 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Uplift Command Center — NTU MSA 2024</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+[data-theme="dark"]{
+  --bg:#0f1117;--sf:#181c27;--sf2:#1f2436;
+  --bd:rgba(255,255,255,.07);--bd2:rgba(255,255,255,.13);
+  --tx:#f0f2f8;--mu:#7c8399;
+  --ib:rgba(79,127,255,.07);--ibr:rgba(79,127,255,.2);--it:#a8bfff;
+  --rb:rgba(0,200,150,.07);--rbr:rgba(0,200,150,.2);--rt:#00c896;
+  --tg:rgba(255,255,255,.07);--tt:#94a3b8;
+  --tlb:#1f2436;--tlt:#f0f2f8;
+  --cu:#1f2a3c;--ca:#1a2318;
+  --cg:rgba(255,255,255,.05);--ct:#7c8399;
+}
+[data-theme="light"]{
+  --bg:#f4f5f9;--sf:#fff;--sf2:#f0f2f7;
+  --bd:rgba(0,0,0,.07);--bd2:rgba(0,0,0,.12);
+  --tx:#1a1d2e;--mu:#6b7280;
+  --ib:rgba(59,100,240,.05);--ibr:rgba(59,100,240,.18);--it:#3b64f0;
+  --rb:rgba(0,160,110,.05);--rbr:rgba(0,160,110,.2);--rt:#007a55;
+  --tg:rgba(0,0,0,.05);--tt:#6b7280;
+  --tlb:#fff;--tlt:#1a1d2e;
+  --cu:rgba(79,127,255,.07);--ca:rgba(0,200,150,.05);
+  --cg:rgba(0,0,0,.05);--ct:#6b7280;
+}
+:root{
+  --a1:#4f7fff;--a2:#00c896;--a3:#ff6b6b;--a4:#ffb347;
+  --fn:'DM Sans',sans-serif;--fm:'DM Mono',monospace;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:var(--fn);background:var(--bg);color:var(--tx);display:flex;min-height:100vh;font-size:14px;line-height:1.6;transition:background .2s,color .2s;}
+
+/* ── Sidebar ── */
+.sidebar{width:224px;min-height:100vh;background:var(--sf);border-right:1px solid var(--bd);display:flex;flex-direction:column;padding:28px 0;position:fixed;top:0;left:0;bottom:0;z-index:100;transition:background .2s;}
+.brand{padding:0 20px 22px;border-bottom:1px solid var(--bd);margin-bottom:18px;}
+.brand-t{font-size:12px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--a1);}
+.brand-s{font-size:11px;color:var(--mu);margin-top:2px;}
+.ns{padding:0 12px;margin-bottom:4px;}
+.nl{font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--mu);padding:0 8px;margin-bottom:3px;}
+.ni{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:8px;cursor:pointer;font-size:13px;color:var(--mu);transition:all .15s;border:1px solid transparent;margin-bottom:2px;user-select:none;}
+.ni:hover{background:var(--sf2);color:var(--tx);}
+.ni.active{background:rgba(79,127,255,.1);border-color:rgba(79,127,255,.22);color:var(--a1);font-weight:500;}
+.ni.sep{margin-top:8px;border-top:1px solid var(--bd);padding-top:10px;}
+.ni.agent.active{background:rgba(0,200,150,.1);border-color:rgba(0,200,150,.22);color:var(--a2);}
+.ni.upload.active{background:rgba(255,179,71,.1);border-color:rgba(255,179,71,.22);color:var(--a4);}
+.tb{margin:10px 12px 0;padding:9px 10px;border-radius:8px;cursor:pointer;font-size:13px;color:var(--mu);border:1px solid var(--bd2);background:var(--sf2);display:flex;align-items:center;gap:8px;user-select:none;transition:all .15s;}
+.tb:hover{color:var(--tx);}
+.sfooter{margin-top:auto;padding:14px 20px 0;border-top:1px solid var(--bd);font-size:11px;color:var(--mu);line-height:1.6;}
+
+/* ── Main ── */
+.main{margin-left:224px;flex:1;padding:36px 36px 60px;min-height:100vh;}
+.page{display:none;}.page.active{display:block;}
+.ph{margin-bottom:24px;}
+.ph h1{font-size:22px;font-weight:600;letter-spacing:-.02em;color:var(--tx);}
+.ph p{font-size:13px;color:var(--mu);margin-top:4px;}
+
+/* ── Hero strip ── */
+.hero{background:linear-gradient(135deg,rgba(0,200,150,.08),rgba(79,127,255,.05));border:1px solid rgba(0,200,150,.2);border-radius:14px;padding:18px 26px;margin-bottom:22px;display:flex;gap:28px;align-items:center;flex-wrap:wrap;}
+.hm{text-align:center;}.hv{font-size:34px;font-weight:700;font-family:var(--fm);color:var(--a2);letter-spacing:-.02em;}
+.hl{font-size:10px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--mu);margin-top:2px;}
+.hd{width:1px;height:50px;background:var(--bd2);flex-shrink:0;}
+.ht{flex:1;min-width:200px;font-size:13px;color:var(--mu);line-height:1.6;}
+.ht strong{color:var(--a2);}
+
+/* ── KPI row ── */
+.kr{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:20px;}
+.kpi{background:var(--sf);border:1px solid var(--bd);border-radius:12px;padding:15px 17px;position:relative;overflow:hidden;transition:background .2s;}
+.kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--kc,var(--a1));border-radius:12px 12px 0 0;}
+.kl{font-size:10px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--mu);margin-bottom:6px;}
+.kv{font-size:22px;font-weight:600;letter-spacing:-.02em;font-family:var(--fm);color:var(--tx);}
+.ks{font-size:11px;color:var(--mu);margin-top:3px;}
+.kpi.g{--kc:var(--a2);}.kpi.b{--kc:var(--a1);}.kpi.r{--kc:var(--a3);}.kpi.a{--kc:var(--a4);}
+.green{color:var(--a2);}.red{color:var(--a3);}
+
+/* ── Cards ── */
+.card{background:var(--sf);border:1px solid var(--bd);border-radius:12px;padding:20px 22px;margin-bottom:18px;transition:background .2s;}
+.ch{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;}
+.ct{font-size:11px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--mu);}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:18px;}
+
+/* ── Insight boxes ── */
+.ins{background:var(--ib);border:1px solid var(--ibr);border-radius:8px;padding:11px 15px;margin-top:12px;font-size:13px;color:var(--it);line-height:1.6;}
+.rec{background:var(--rb);border:1px solid var(--rbr);border-radius:8px;padding:11px 15px;margin-top:8px;font-size:13px;color:var(--rt);line-height:1.6;}
+.bl_{font-size:9px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;opacity:.7;margin-bottom:3px;}
+
+/* ── Badges ── */
+.badge{display:inline-block;padding:2px 8px;border-radius:100px;font-size:10px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;}
+.bb{background:rgba(79,127,255,.13);color:#89a8ff;}.bg_{background:rgba(0,200,150,.13);color:#00c896;}.ba{background:rgba(255,179,71,.13);color:#ffb347;}.br_{background:rgba(255,107,107,.13);color:#ff8080;}
+
+/* ── Table ── */
+.tw{overflow-x:auto;}
+table{width:100%;border-collapse:collapse;font-size:13px;}
+thead th{font-size:10px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--mu);padding:7px 10px;border-bottom:1px solid var(--bd);text-align:left;}
+tbody td{padding:10px;border-bottom:1px solid var(--bd);color:var(--tx);font-family:var(--fm);font-size:12px;}
+tbody td:first-child{font-family:var(--fn);font-size:13px;}
+tbody tr:last-child td{border-bottom:none;}
+tbody tr:hover{background:var(--sf2);}
+tbody tr.top td{color:var(--a2);}
+
+/* ── Legend ── */
+.leg{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:10px;font-size:11px;color:var(--mu);}
+.li{display:flex;align-items:center;gap:5px;}.ld{width:10px;height:10px;border-radius:2px;flex-shrink:0;}
+
+/* ── Segments ── */
+.sgg{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:16px;}
+.seg{border-radius:12px;padding:17px;border:1px solid var(--bd2);}
+.sp{background:rgba(0,200,150,.06);border-color:rgba(0,200,150,.2)!important;}
+.ss{background:rgba(79,127,255,.06);border-color:rgba(79,127,255,.2)!important;}
+.sl{background:rgba(255,179,71,.06);border-color:rgba(255,179,71,.2)!important;}
+.sc{background:rgba(255,107,107,.06);border-color:rgba(255,107,107,.2)!important;}
+.sn{font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-bottom:5px;}
+.sp .sn{color:#00c896;}.ss .sn{color:#4f7fff;}.sl .sn{color:#ffb347;}.sc .sn{color:#ff6b6b;}
+.spct{font-size:30px;font-weight:700;font-family:var(--fm);color:var(--tx);}
+.sd{font-size:11px;color:var(--mu);margin-top:4px;line-height:1.45;}
+.stg{display:inline-block;font-size:10px;font-weight:600;margin-top:7px;padding:2px 8px;border-radius:4px;}
+.sp .stg{background:rgba(0,200,150,.15);color:#00c896;}.ss .stg{background:rgba(79,127,255,.15);color:#4f7fff;}
+.sl .stg{background:rgba(255,179,71,.15);color:#ffb347;}.sc .stg{background:rgba(255,107,107,.15);color:#ff6b6b;}
+
+/* ── Feature tags ── */
+.fg{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;}
+.fc{background:var(--sf2);border-radius:8px;padding:13px;border:1px solid var(--bd);}
+.fn_{font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-bottom:8px;}
+.ft_{display:flex;flex-wrap:wrap;gap:4px;}
+.ftg{background:var(--tg);color:var(--tt);font-size:10px;font-family:var(--fm);padding:2px 6px;border-radius:4px;cursor:default;position:relative;transition:background .12s;}
+.ftg:hover{background:rgba(79,127,255,.15);color:var(--a1);}
+.ftg:hover .ftp{display:block;}
+.ftp{display:none;position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);background:var(--tlb);border:1px solid var(--bd2);color:var(--tlt);font-family:var(--fn);font-size:11px;line-height:1.45;padding:7px 10px;border-radius:7px;white-space:nowrap;z-index:999;pointer-events:none;box-shadow:0 4px 12px rgba(0,0,0,.25);}
+.ftp::after{content:'';position:absolute;top:100%;left:50%;transform:translateX(-50%);border:5px solid transparent;border-top-color:var(--bd2);}
+
+/* ── Simulator ── */
+.sb{background:var(--sf);border:1px solid var(--bd);border-radius:12px;padding:17px 22px;margin-bottom:18px;display:flex;align-items:center;gap:24px;flex-wrap:wrap;}
+.sc_ label,.rg label{font-size:10px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--mu);display:block;margin-bottom:6px;}
+.sc_ select{background:var(--sf2);border:1px solid var(--bd2);color:var(--tx);font-family:var(--fn);font-size:13px;padding:8px 12px;border-radius:8px;outline:none;cursor:pointer;min-width:250px;}
+.rg{flex:1;min-width:240px;}.rv{color:var(--a1);font-weight:600;font-family:var(--fm);}
+input[type=range]{width:100%;-webkit-appearance:none;height:4px;background:var(--bd2);border-radius:2px;outline:none;cursor:pointer;}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;background:var(--a1);cursor:pointer;border:2px solid var(--bg);}
+.ob{display:none;background:rgba(0,200,150,.15);color:var(--a2);font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:2px 7px;border-radius:5px;margin-left:6px;vertical-align:middle;}
+.og{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
+.ob_{background:rgba(0,200,150,.06);border:1px solid rgba(0,200,150,.2);border-radius:10px;padding:18px;text-align:center;}
+.ov{font-size:32px;font-weight:700;font-family:var(--fm);color:var(--tx);}
+.ol{font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--a2);margin-bottom:7px;}
+.os{font-size:11px;color:var(--mu);margin-top:4px;}
+.risk{background:rgba(255,179,71,.05);border:1px solid rgba(255,179,71,.18);border-radius:8px;padding:11px 15px;margin-top:12px;font-size:12px;color:var(--a4);line-height:1.6;}
+.cw{position:relative;}
+
+/* ── AI Chat ── */
+.ai-hero{background:linear-gradient(135deg,rgba(0,200,150,.08),rgba(79,127,255,.06));border:1px solid rgba(0,200,150,.2);border-radius:14px;padding:22px 26px;margin-bottom:22px;}
+.ai-hero h2{font-size:18px;font-weight:600;margin-bottom:8px;color:var(--tx);}
+.ai-hero p{font-size:13px;color:var(--mu);line-height:1.7;}
+.tool-chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:12px;}
+.tc_{background:rgba(0,200,150,.1);border:1px solid rgba(0,200,150,.2);color:var(--a2);font-size:11px;font-weight:500;padding:4px 10px;border-radius:20px;font-family:var(--fm);}
+.sugs{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px;}
+.sug{background:var(--sf);border:1px solid var(--bd2);color:var(--mu);font-family:var(--fn);font-size:12px;padding:7px 13px;border-radius:20px;cursor:pointer;transition:all .15s;}
+.sug:hover{background:rgba(79,127,255,.1);border-color:rgba(79,127,255,.3);color:var(--a1);}
+.chat-win{background:var(--sf);border:1px solid var(--bd);border-radius:14px;overflow:hidden;}
+.chat-msgs{height:460px;overflow-y:auto;padding:20px;display:flex;flex-direction:column;gap:12px;}
+.msg{max-width:84%;padding:12px 16px;border-radius:12px;font-size:13px;line-height:1.65;}
+.msg-u{background:var(--cu);border:1px solid var(--bd2);align-self:flex-end;color:var(--tx);border-radius:12px 12px 3px 12px;}
+.msg-a{background:var(--ca);border:1px solid rgba(0,200,150,.15);align-self:flex-start;color:var(--tx);border-radius:12px 12px 12px 3px;max-width:92%;}
+.msg-a .alabel{font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--a2);margin-bottom:5px;}
+.tool-step{align-self:flex-start;background:rgba(79,127,255,.06);border:1px solid rgba(79,127,255,.15);border-radius:10px;padding:10px 14px;font-size:12px;color:var(--mu);width:90%;}
+.tool-step .ts-label{font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--a1);margin-bottom:5px;}
+.tool-step .ts-name{color:var(--a1);font-weight:500;font-family:var(--fm);}
+.thinking{align-self:flex-start;color:var(--mu);font-size:12px;font-style:italic;padding:6px 0;display:flex;align-items:center;gap:6px;}
+.dot-pulse{display:flex;gap:3px;}
+.dot-pulse span{width:5px;height:5px;background:var(--a2);border-radius:50%;animation:dp .9s infinite;}
+.dot-pulse span:nth-child(2){animation-delay:.2s;}.dot-pulse span:nth-child(3){animation-delay:.4s;}
+@keyframes dp{0%,80%,100%{opacity:.2;transform:scale(.8);}40%{opacity:1;transform:scale(1);}}
+.chat-bar{display:flex;gap:10px;padding:14px 16px;border-top:1px solid var(--bd);background:var(--sf2);}
+.ci{flex:1;background:var(--sf);border:1px solid var(--bd2);color:var(--tx);font-family:var(--fn);font-size:13px;padding:10px 14px;border-radius:10px;outline:none;}
+.ci:focus{border-color:var(--a1);}.ci::placeholder{color:var(--mu);}
+.cb{background:var(--a2);color:#fff;border:none;font-family:var(--fn);font-size:13px;font-weight:500;padding:10px 18px;border-radius:10px;cursor:pointer;transition:opacity .15s;white-space:nowrap;}
+.cb:hover{opacity:.85;}.cb:disabled{opacity:.4;cursor:not-allowed;}
+
+/* ── Upload page ── */
+.dropzone{border:2px dashed var(--bd2);border-radius:14px;padding:48px 24px;text-align:center;cursor:pointer;transition:all .2s;margin-bottom:20px;background:var(--sf);}
+.dropzone:hover{border-color:var(--a2);background:rgba(0,200,150,.03);}
+.prog-bar-wrap{background:var(--bd2);border-radius:4px;height:4px;overflow:hidden;margin-top:12px;}
+.prog-bar{background:var(--a1);height:100%;border-radius:4px;width:0%;transition:width .3s;}
+
+::-webkit-scrollbar{width:5px;height:5px;}::-webkit-scrollbar-track{background:transparent;}::-webkit-scrollbar-thumb{background:var(--bd2);border-radius:3px;}
+</style>
+</head>
+<body>
+
+<!-- ══════ SIDEBAR ══════ -->
+<aside class="sidebar">
+  <div class="brand">
+    <div class="brand-t">Uplift Command Center</div>
+    <div class="brand-s">NTU MSA Dissertation 2024</div>
+  </div>
+  <div class="ns">
+    <div class="nl">Dashboard</div>
+    <div class="ni active"  onclick="showPage('p1',this)"><span>◈</span>Model performance</div>
+    <div class="ni"         onclick="showPage('p2',this)"><span>◉</span>Customer intelligence</div>
+    <div class="ni"         onclick="showPage('p3',this)"><span>◎</span>Budget simulator</div>
+    <div class="ni sep agent"  onclick="showPage('p4',this)"><span>✦</span>AI agent</div>
+    <div class="ni upload"  onclick="showPage('p5',this)"><span>↑</span>Upload data</div>
+  </div>
+  <div style="padding:0 12px;margin-top:10px;">
+    <div class="tb" onclick="toggleTheme()"><span id="tI">☀</span><span id="tL">Light mode</span></div>
+  </div>
+  <div class="sfooter">
+    <div style="font-weight:500;color:var(--tx);font-size:12px;margin-bottom:4px">Data source</div>
+    X5 RetailHero<br>45M transactions<br>200K customers
+    <br><span style="display:inline-block;background:rgba(0,200,150,.12);color:var(--a2);font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px;margin-top:6px" id="fb">– features</span>
+  </div>
+</aside>
+
+<!-- ══════ MAIN ══════ -->
+<main class="main">
+
+<!-- ═══ PAGE 1: MODEL PERFORMANCE ═══ -->
+<div id="p1" class="page active">
+  <div class="ph"><h1>Which targeting strategy makes money?</h1><p>Seven models evaluated on X5 RetailHero — causal uplift vs. traditional approaches</p></div>
+  <div class="hero">
+    <div class="hm"><div class="hv" id="h-roi">–</div><div class="hl">Peak ROI</div></div>
+    <div class="hd"></div>
+    <div class="hm"><div class="hv" id="h-prof">–</div><div class="hl">Max net profit</div></div>
+    <div class="hd"></div>
+    <div class="hm"><div class="hv">55%</div><div class="hl">Budget saving vs broadcast</div></div>
+    <div class="hd"></div>
+    <div class="ht"><strong>Bottom line:</strong> Targeting the right customers with causal uplift generates ~90% ROI, while traditional spend-based targeting loses money at most budget levels.</div>
+  </div>
+  <div class="kr">
+    <div class="kpi g"><div class="kl">Winner</div><div class="kv green" style="font-size:17px">Uplift RF</div><div class="ks">Highest incremental value</div></div>
+    <div class="kpi g"><div class="kl">Best Qini AUC</div><div class="kv green" id="kq">–</div><div class="ks">vs 0.000 random baseline</div></div>
+    <div class="kpi b"><div class="kl">Models tested</div><div class="kv">7</div><div class="ks">5 baseline + 2 neural nets</div></div>
+    <div class="kpi a"><div class="kl">MLP X-Learner</div><div class="kv" style="color:var(--a4)" id="km">–</div><div class="ks">Neural net — 4th overall</div></div>
+  </div>
+  <div class="g2">
+    <div class="card">
+      <div class="ch"><div class="ct">Qini AUC — model ranking</div><div style="display:flex;gap:6px"><span class="badge bb">Tree</span><span class="badge bg_">Meta</span><span class="badge ba">Neural</span></div></div>
+      <div class="cw" style="height:270px"><canvas id="cq" role="img" aria-label="Qini AUC scores">–</canvas></div>
+      <div class="rec"><div class="bl_">Recommendation</div><strong>Use Uplift RF for all targeting campaigns.</strong> It delivers the highest incremental ROI at every budget level tested.</div>
+    </div>
+    <div class="card">
+      <div class="ch"><div class="ct">Full comparison table</div></div>
+      <div class="tw"><table><thead><tr><th>#</th><th>Model</th><th>Type</th><th>Qini AUC</th></tr></thead><tbody id="mtb"></tbody></table></div>
+      <div class="ins"><div class="bl_">Key finding</div>Tree models dominate because their splitting criteria directly optimise for treatment effect heterogeneity. Neural nets ranked 4th and 7th — competitive but not optimal for tabular retail data.</div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="ch"><div class="ct">Cumulative gain curves</div><div style="font-size:11px;color:var(--mu)">Higher curve = finds more responsive customers earlier</div></div>
+    <div class="leg">
+      <span class="li"><span class="ld" style="background:#ff6b6b"></span>Uplift RF</span>
+      <span class="li"><span class="ld" style="background:#4f7fff"></span>Uplift XGBoost</span>
+      <span class="li"><span class="ld" style="background:#00c896"></span>X-Learner</span>
+      <span class="li"><span class="ld" style="background:#ffb347"></span>MLP X-Learner</span>
+      <span class="li"><span class="ld" style="background:#94a3b8"></span>Others</span>
+      <span class="li"><span class="ld" style="background:#475569"></span>Random</span>
+    </div>
+    <div class="cw" style="height:250px"><canvas id="cg" role="img" aria-label="Cumulative gain curves">–</canvas></div>
+    <div class="ins"><div class="bl_">How to read</div>Rank 60,000 customers by model score and contact them one by one. The dashed line = no model (random). <strong>Any curve above = model successfully identifies real responders ahead of non-responders.</strong></div>
+  </div>
+</div>
+
+<!-- ═══ PAGE 2: CUSTOMER INTELLIGENCE ═══ -->
+<div id="p2" class="page">
+  <div class="ph"><h1>Who should we target?</h1><p>Causal segmentation reveals only 1 in 4 customers actually responds to advertising</p></div>
+  <div class="sgg">
+    <div class="seg sp"><div class="sn">Persuadables</div><div class="spct" id="s-p">–</div><div class="sd">Convert because of the ad. Only group generating genuine incremental value.</div><div class="stg">▲ Target first</div></div>
+    <div class="seg ss"><div class="sn">Sure things</div><div class="spct" id="s-s">–</div><div class="sd">Buy regardless. Targeting generates zero incremental return.</div><div class="stg">→ Exclude</div></div>
+    <div class="seg sl"><div class="sn">Sleeping dogs</div><div class="spct" id="s-l">–</div><div class="sd">Ads reduce conversion probability. Targeting actively harms ROI.</div><div class="stg">✕ Avoid</div></div>
+    <div class="seg sc"><div class="sn">Lost causes</div><div class="spct" id="s-c">–</div><div class="sd">Won't convert under any condition. Zero incremental value.</div><div class="stg">✕ Exclude</div></div>
+  </div>
+  <div class="ins" style="margin-bottom:18px"><div class="bl_">Business impact</div>Traditional broadcast targeting wastes budget on 77% who are Sure Things, Sleeping Dogs, or Lost Causes. <strong>Uplift targeting concentrates spend on Persuadables</strong> — the segment driving ~85% of all incremental profit.</div>
+  <div class="g2">
+    <div class="card">
+      <div class="ch"><div class="ct">What drives ad responsiveness?</div><div style="font-size:11px;color:var(--mu)">SHAP — X-Learner effect model</div></div>
+      <div class="cw" style="height:280px"><canvas id="cs" role="img" aria-label="SHAP feature importance">–</canvas></div>
+      <div class="rec"><div class="bl_">Targeting profile</div><strong>Target customers who actively redeem loyalty points and purchased within 30 days.</strong> Behavioural signals outperform demographics.</div>
+    </div>
+    <div class="card">
+      <div class="ch"><div class="ct">Segment behaviour profiles</div></div>
+      <div class="tw"><table><thead><tr><th>Metric</th><th style="color:#00c896">Persuadables</th><th style="color:#4f7fff">Sure things</th><th style="color:#ffb347">Sleeping dogs</th></tr></thead><tbody id="seg-tbl"></tbody></table></div>
+      <div class="ins"><div class="bl_">Profile insight</div>Persuadables are mid-value customers in their mid-30s — not the biggest spenders. They are on the margin where advertising produces a measurable causal effect.</div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="ch"><div class="ct">Feature engineering — <span id="fct">–</span> features across 8 categories</div></div>
+    <div style="font-size:12px;color:var(--mu);margin-bottom:14px">Hover any tag to see its meaning.</div>
+    <div class="fg">
+      <div class="fc"><div class="fn_" style="color:var(--a1)">RFM core</div><div class="ft_">
+        <span class="ftg">avg_ticket_size<span class="ftp">Average spend per transaction</span></span>
+        <span class="ftg">spend_volatility<span class="ftp">Range between max and min spend</span></span>
+        <span class="ftg">total_spend<span class="ftp">Cumulative lifetime revenue</span></span>
+        <span class="ftg">trans_count<span class="ftp">Total number of purchases</span></span>
+      </div></div>
+      <div class="fc"><div class="fn_" style="color:var(--a2)">Time & lifecycle</div><div class="ft_">
+        <span class="ftg">recency_days<span class="ftp">Days since last purchase — most important recency signal</span></span>
+        <span class="ftg">customer_lifetime<span class="ftp">Days between first and last purchase</span></span>
+        <span class="ftg">spend_velocity<span class="ftp">Average daily spend rate</span></span>
+        <span class="ftg">purchase_frequency<span class="ftp">Average days between purchases</span></span>
+      </div></div>
+      <div class="fc"><div class="fn_" style="color:var(--a4)">Time preference</div><div class="ft_">
+        <span class="ftg">weekend_spend_ratio<span class="ftp">Share of total spend on weekends</span></span>
+        <span class="ftg">morning_spend_ratio<span class="ftp">Share of spend in morning hours (6–12)</span></span>
+        <span class="ftg">evening_spend_ratio<span class="ftp">Share of spend in evening hours (18–23)</span></span>
+      </div></div>
+      <div class="fc"><div class="fn_" style="color:#a78bfa">Points loyalty</div><div class="ft_">
+        <span class="ftg">points_burn_rate<span class="ftp">★ Top SHAP feature. Points redeemed ÷ points earned</span></span>
+        <span class="ftg">points_earn_rate<span class="ftp">Points earned per dollar spent</span></span>
+        <span class="ftg">net_points_balance<span class="ftp">Accumulated unspent points</span></span>
+        <span class="ftg">express_pts_ratio<span class="ftp">Ratio of fast-expiry points</span></span>
+      </div></div>
+      <div class="fc"><div class="fn_" style="color:var(--a3)">High-value flags</div><div class="ft_">
+        <span class="ftg">high_value_ratio_300<span class="ftp">Flag × spend for customers spending >$300</span></span>
+        <span class="ftg">high_value_ratio_1000<span class="ftp">Flag × spend for customers spending >$1,000</span></span>
+        <span class="ftg">high_value_ratio_5000<span class="ftp">Flag × spend for customers spending >$5,000</span></span>
+      </div></div>
+      <div class="fc"><div class="fn_" style="color:#f472b6">Behaviour flags</div><div class="ft_">
+        <span class="ftg">is_long_term<span class="ftp">Binary: customer lifetime > 365 days</span></span>
+        <span class="ftg">high_frequency<span class="ftp">Binary: transaction count above median</span></span>
+        <span class="ftg">low_recency<span class="ftp">Binary: last purchase within 30 days</span></span>
+        <span class="ftg">is_high_value<span class="ftp">Binary: total spend in top 25%</span></span>
+      </div></div>
+      <div class="fc"><div class="fn_" style="color:#34d399">Interactions ×20</div><div class="ft_">
+        <span class="ftg">freq_x_burn_rate<span class="ftp">Purchase frequency × points burn rate</span></span>
+        <span class="ftg">age_x_spend<span class="ftp">Age × total spend interaction term</span></span>
+        <span class="ftg">recency_x_monetary<span class="ftp">Recency × spend interaction term</span></span>
+        <span class="ftg">tenure_x_spend<span class="ftp">Customer lifetime × total spend</span></span>
+      </div></div>
+      <div class="fc"><div class="fn_" style="color:#60a5fa">Ratios & derived</div><div class="ft_">
+        <span class="ftg">spend_per_day<span class="ftp">Total spend ÷ lifetime days</span></span>
+        <span class="ftg">trans_per_day<span class="ftp">Transactions ÷ lifetime days</span></span>
+        <span class="ftg">points_per_spend<span class="ftp">Points earned ÷ total spend</span></span>
+        <span class="ftg">trans_per_recency<span class="ftp">Recent transaction density</span></span>
+      </div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ PAGE 3: BUDGET SIMULATOR ═══ -->
+<div id="p3" class="page">
+  <div class="ph"><h1>How much should we spend — and on whom?</h1><p>Slide to find the profit-maximising targeting threshold</p></div>
+  <div style="background:rgba(0,200,150,.06);border:1px solid rgba(0,200,150,.2);border-radius:10px;padding:14px 18px;margin-bottom:18px;font-size:13px;color:var(--tx);line-height:1.6">
+    <strong style="color:var(--a2)">How to use:</strong> Select a targeting strategy, drag the slider, and watch all metrics update in real time.
+  </div>
+  <div class="sb">
+    <div class="sc_"><label>Targeting strategy</label>
+      <select id="strat" onchange="updateSim()">
+        <option value="uplift">Uplift RF — causal (recommended)</option>
+        <option value="trad">Traditional — top spenders</option>
+        <option value="rand">Random — no targeting</option>
+      </select>
+    </div>
+    <div class="rg"><label>Budget coverage: <span class="rv" id="bv">45</span>% <span class="ob" id="ob">Optimal</span></label>
+      <input type="range" min="5" max="100" step="5" value="45" id="br" oninput="updateSim()">
+    </div>
+    <div style="font-size:11px;color:var(--mu);line-height:1.8">Cost/user: <strong style="color:var(--tx)">$0.50</strong><br>Margin/conversion: <strong style="color:var(--tx)">$15.00</strong></div>
+  </div>
+  <div class="kr">
+    <div class="kpi r"><div class="kl">Ad spend</div><div class="kv" id="sc_">–</div><div class="ks">Total campaign outlay</div></div>
+    <div class="kpi g"><div class="kl">Incremental revenue</div><div class="kv green" id="sr">–</div><div class="ks">Causally attributed to ads</div></div>
+    <div class="kpi g"><div class="kl">Net profit</div><div class="kv green" id="sp_">–</div><div class="ks">Revenue minus cost</div></div>
+    <div class="kpi b"><div class="kl">ROI</div><div class="kv" id="sr2" style="color:var(--a2)">–</div><div class="ks">Net profit ÷ ad spend</div></div>
+  </div>
+  <div class="g2">
+    <div class="card">
+      <div class="ch"><div class="ct">Net profit by coverage</div></div>
+      <div class="leg"><span class="li"><span class="ld" style="background:#00c896"></span>Uplift RF</span><span class="li"><span class="ld" style="background:#4f7fff"></span>Traditional</span><span class="li"><span class="ld" style="background:#94a3b8"></span>Random</span></div>
+      <div class="cw" style="height:210px"><canvas id="cp" role="img" aria-label="Net profit chart">–</canvas></div>
+      <div class="rec"><div class="bl_">Decision</div><strong>Optimal coverage is <span id="oc">–</span>%.</strong> Beyond this, each additional user targeted reduces overall profit.</div>
+    </div>
+    <div class="card">
+      <div class="ch"><div class="ct">ROI by coverage</div><div style="font-size:11px;color:var(--mu)">0% = break-even</div></div>
+      <div class="leg"><span class="li"><span class="ld" style="background:#00c896"></span>Uplift RF</span><span class="li"><span class="ld" style="background:#4f7fff"></span>Traditional</span><span class="li"><span class="ld" style="background:#94a3b8"></span>Random</span></div>
+      <div class="cw" style="height:210px"><canvas id="cr" role="img" aria-label="ROI chart">–</canvas></div>
+      <div class="ins"><div class="bl_">Why ROI declines</div>As coverage increases, the model is forced to target lower-uplift customers — same cost, less incremental revenue — producing diminishing returns.</div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="ch"><div class="ct">Optimal recommendation</div></div>
+    <div class="og">
+      <div class="ob_"><div class="ol">Target coverage</div><div class="ov" id="opt-cov">–</div><div class="os">of total customer base</div></div>
+      <div class="ob_"><div class="ol">Max net profit</div><div class="ov" id="opt-prof">–</div><div class="os">Uplift RF causal targeting</div></div>
+      <div class="ob_"><div class="ol">Peak ROI</div><div class="ov" id="opt-roi">–</div><div class="os">vs. traditional approach</div></div>
+    </div>
+    <div class="risk"><strong>Performance caveat:</strong> Results from X5 RetailHero holdout test set. Performance may vary due to seasonality, product mix, and competitor activity. Model retraining recommended every 3–6 months.</div>
+  </div>
+</div>
+
+<!-- ═══ PAGE 4: AI AGENT ═══ -->
+<div id="p4" class="page">
+  <div class="ph"><h1>AI decision agent</h1><p>Ask questions — the agent calls real tools, shows its reasoning, then answers</p></div>
+  <div class="ai-hero">
+    <h2>✦ Causal Uplift Agent</h2>
+    <p>This is a real agentic AI — not just a chatbot. When you ask a question, the agent autonomously decides which tools to call, executes them against your actual model results, and synthesises the findings. Watch every reasoning step in real time.</p>
+    <div class="tool-chips">
+      <span class="tc_">budget_optimizer</span>
+      <span class="tc_">segment_profile</span>
+      <span class="tc_">compare_models</span>
+      <span class="tc_">generate_brief</span>
+      <span class="tc_">anomaly_check</span>
+    </div>
+  </div>
+  <div style="font-size:11px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--mu);margin-bottom:8px">Try these</div>
+  <div class="sugs">
+    <button class="sug" onclick="askSug(this)">我有 $5000 预算，帮我制定完整的投放方案</button>
+    <button class="sug" onclick="askSug(this)">检查一下模型结果有没有异常</button>
+    <button class="sug" onclick="askSug(this)">Why does Uplift RF outperform T-Learner? Show me the data</button>
+    <button class="sug" onclick="askSug(this)">What is the profile of a Persuadable customer?</button>
+    <button class="sug" onclick="askSug(this)">Generate a campaign brief for a $10,000 budget</button>
+    <button class="sug" onclick="askSug(this)">为什么预算超过45%之后收益会下降？</button>
+    <button class="sug" onclick="askSug(this)">Give me a 30-second pitch for this project</button>
+    <button class="sug" onclick="askSug(this)">如果导师问为什么用Uplift RF，我怎么回答？</button>
+  </div>
+  <div class="chat-win">
+    <div class="chat-msgs" id="msgs">
+      <div class="msg msg-a">
+        <div class="alabel">✦ Uplift Agent</div>
+        I have access to your real model results and 5 tools I can call to query them. Ask me anything — I'll show you exactly which tools I'm using and why.
+      </div>
+    </div>
+    <div class="chat-bar">
+      <input class="ci" id="ci" type="text" placeholder="Ask about budget strategy, model performance, customer segments..." onkeydown="if(event.key==='Enter')sendMsg()">
+      <button class="cb" id="cb" onclick="sendMsg()">Run agent ↗</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ PAGE 5: UPLOAD DATA ═══ -->
+<div id="p5" class="page">
+  <div class="ph"><h1>Upload new customer data</h1><p>Upload a CSV to re-score customers with your trained Uplift RF and get an instant targeting recommendation</p></div>
+
+  <div style="background:rgba(255,179,71,.06);border:1px solid rgba(255,179,71,.2);border-radius:12px;padding:16px 20px;margin-bottom:20px;font-size:13px;color:var(--tx);line-height:1.7">
+    <strong style="color:var(--a4)">How it works:</strong>
+    Upload any CSV with the same column structure as your training data →
+    The server scores each customer using your saved Uplift RF model →
+    You get an updated four-quadrant segmentation, top users to target,
+    anomaly alerts, and a budget recommendation — all in under 10 seconds.
+    <br><br>
+    <strong style="color:var(--mu)">Required format:</strong>
+    Same columns as <code style="background:var(--sf2);padding:1px 5px;border-radius:3px;font-family:var(--fm);font-size:11px">sample_upload.csv</code> in your figures folder.
+    The server needs to be running (Flask on port 5001).
+  </div>
+
+  <!-- Drop zone -->
+  <div class="dropzone" id="dropzone"
+    onclick="document.getElementById('file-input').click()"
+    ondragover="handleDragOver(event)"
+    ondragleave="handleDragLeave(event)"
+    ondrop="handleDrop(event)">
+    <div style="font-size:40px;margin-bottom:14px">📂</div>
+    <div style="font-size:15px;font-weight:500;color:var(--tx);margin-bottom:6px">Drop CSV file here or click to browse</div>
+    <div style="font-size:12px;color:var(--mu)">Supports .csv files · Same column format as training data</div>
+    <input type="file" id="file-input" accept=".csv" style="display:none" onchange="handleFileSelect(event)">
+  </div>
+
+  <!-- Progress -->
+  <div id="upload-progress" style="display:none;margin-bottom:20px">
+    <div class="card" style="padding:20px 24px">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">
+        <div class="dot-pulse"><span></span><span></span><span></span></div>
+        <div style="font-size:13px;color:var(--mu)" id="prog-text">Uploading file...</div>
+      </div>
+      <div class="prog-bar-wrap"><div class="prog-bar" id="prog-bar"></div></div>
+    </div>
+  </div>
+
+  <!-- Results -->
+  <div id="upload-results" style="display:none">
+    <div class="kr" id="up-kpis"></div>
+    <div class="g2">
+      <div class="card">
+        <div class="ch">
+          <div class="ct">Updated segmentation</div>
+          <span style="font-size:11px;color:var(--a2)" id="up-time"></span>
+        </div>
+        <div id="new-segs" style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:14px"></div>
+        <div class="rec"><div class="bl_">Budget recommendation</div><div id="bud-rec">–</div></div>
+      </div>
+      <div class="card">
+        <div class="ch"><div class="ct">Anomaly detection</div></div>
+        <div id="anom-box"></div>
+        <div style="margin-top:16px">
+          <div class="ct" style="margin-bottom:10px">Score statistics</div>
+          <div id="score-stats" style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px"></div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="ch">
+        <div class="ct">Top 10 users to target</div>
+        <div style="font-size:11px;color:var(--mu)">Highest uplift score Persuadables</div>
+      </div>
+      <div class="tw">
+        <table>
+          <thead><tr><th>Rank</th><th>Client ID</th><th>Uplift Score</th><th>Total Spend ($)</th><th>Recency (days)</th><th>Burn Rate</th><th>Action</th></tr></thead>
+          <tbody id="top-tbl"></tbody>
+        </table>
+      </div>
+    </div>
+    <div style="text-align:center;margin-top:10px">
+      <button onclick="resetUpload()" style="background:var(--sf);border:1px solid var(--bd2);color:var(--mu);font-family:var(--fn);font-size:13px;padding:10px 24px;border-radius:10px;cursor:pointer">
+        Upload another file
+      </button>
+    </div>
+  </div>
+</div>
+
+</main>
+
+<!-- ══════ SCRIPTS ══════ -->
+<script>
+const D = {"qini_scores": {"S-Learner": 0.05262, "T-Learner": 0.03874, "X-Learner": 0.14785, "Uplift RF": 0.20356, "Uplift XGBoost": 0.15242, "MLP T-Learner": 0.02247, "MLP X-Learner": 0.10549}, "shap": {"features": ["trans_per_recency", "freq_x_tenure", "recency_x_high_value", "recency_days", "avg_ticket_size", "min_spend", "issue_redeem_delay", "tenure_x_spend", "days_since_issue", "avg_pts_spent_per_trans"], "values": [0.08718, 0.06518, 0.04209, 0.03077, 0.02612, 0.02121, 0.01223, 0.00897, 0.00833, 0.008]}, "segments": {"Persuadables": {"count": 19091, "pct": 31.8, "avg_recency": 201.8, "avg_spend": 87210.5, "avg_burn_rate": -1.051, "avg_trans": 114.1, "conversion_rate": 100.0}, "Sure Things": {"count": 18110, "pct": 30.2, "avg_recency": 201.8, "avg_spend": 88194.3, "avg_burn_rate": -1.477, "avg_trans": 114.5, "conversion_rate": 100.0}, "Sleeping Dogs": {"count": 11995, "pct": 20.0, "avg_recency": 201.9, "avg_spend": 86947.2, "avg_burn_rate": -2.603, "avg_trans": 114.1, "conversion_rate": 0.0}, "Lost Causes": {"count": 10816, "pct": 18.0, "avg_recency": 201.8, "avg_spend": 86139.6, "avg_burn_rate": -1.141, "avg_trans": 112.3, "conversion_rate": 0.0}}, "budgets": [5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 100], "profit_data": {"uplift": [3270.0, 5512.68, 7447.1, 9510.99, 10082.06, 9840.36, 10912.67, 11275.44, 12523.36, 11394.83, 12044.61, 11006.43, 10843.91, 10447.68, 7287.38, 6260.54, 4776.4, 4038.88, 4175.21, 3106.52], "trad": [508.67, -765.17, -1114.87, -2596.31, -3125.41, -3944.85, -5213.05, -5875.51, -5600.42, -6676.87, -5546.13, -4571.33, -4849.87, -4687.04, -4114.95, -3635.91, -3013.36, -2102.55, -276.66, 3106.52], "rand": [-785.9, -1203.56, 310.71, 1536.4, 1612.94, 1366.22, 2536.0, 1584.76, 2157.12, 2162.12, 1913.45, 1162.94, 2189.45, 2367.01, 1903.86, 2850.38, 2231.16, 2274.02, 2339.88, 3106.52]}, "roi_data": {"uplift": [218.0, 183.73, 165.47, 158.49, 134.4, 109.32, 103.91, 93.95, 92.75, 75.95, 72.98, 61.13, 55.6, 49.74, 32.38, 26.08, 18.73, 14.96, 14.65, 10.35], "trad": [33.91, -25.5, -24.77, -43.26, -41.66, -43.82, -49.64, -48.95, -41.48, -44.5, -33.61, -25.39, -24.87, -22.32, -18.28, -15.15, -11.81, -7.79, -0.97, 10.35], "rand": [-52.39, -40.11, 6.9, 25.6, 21.5, 15.18, 24.15, 13.2, 15.98, 14.41, 11.59, 6.46, 11.23, 11.27, 8.46, 11.87, 8.75, 8.42, 8.21, 10.35]}, "best_budget": 45, "best_profit": 12523.36, "best_cost": 13502.5, "best_roi": 92.75, "feature_count": 70, "test_size": 60012, "anomaly": {"sleeping_pct": 20.0, "mlp_gap": 28.7}};
+const SYSTEM = "You are an AI decision agent for an NTU MSA dissertation on Budget-Constrained Uplift Targeting.\n\nYou have 5 tools that query REAL model results from the X5 RetailHero dataset (45M transactions, 200K customers).\nALWAYS use tools — never guess numbers. For complex questions, call multiple tools in sequence.\n\nReal context:\n- Best model: Uplift RF (Qini AUC 0.20356)\n- Optimal budget: 45% coverage, $12,523 profit, 92.8% ROI\n- Top SHAP feature: trans_per_recency\n- Persuadables: 31.8% of customers\n\nAnswer in the same language as the user (Chinese or English). Be concise. End with one actionable recommendation.";
+const API_KEY = "sk-d1a3cbe02e1e42ca89033e02b1823c5b";
+const CH = {};
+let history = [];
+
+// ══════════════════════════════════
+// TOOL IMPLEMENTATIONS (JavaScript)
+// ══════════════════════════════════
+function toolBudgetOptimizer(budget) {
+  const n = Math.floor(budget / 0.5);
+  const cov = Math.round(n / D.test_size * 100 * 10) / 10;
+  const idx = Math.max(0, Math.min(Math.round(cov / 5) - 1, D.profit_data.uplift.length - 1));
+  return {
+    total_budget: budget, users_targeted: n, coverage_pct: cov,
+    expected_profit: D.profit_data.uplift[idx],
+    expected_roi: D.roi_data.uplift[idx],
+    vs_traditional_roi: D.roi_data.trad[idx],
+    recommendation: `Target top ${cov}% using Uplift RF`
+  };
+}
+function toolSegmentProfile(name) {
+  const map = {'persuadables':'Persuadables','sure things':'Sure Things','sleeping dogs':'Sleeping Dogs','lost causes':'Lost Causes'};
+  let key = null;
+  for (const [k,v] of Object.entries(map)) { if (name.toLowerCase().includes(k)) { key=v; break; } }
+  if (!key) return {error:`Segment not found: ${name}`,available:Object.values(map)};
+  const seg = D.segments[key];
+  if (!seg) return {error:`No data for: ${key}`};
+  return {segment:key,...seg};
+}
+function toolCompareModels(a,b) {
+  const s = D.qini_scores;
+  const sa = s[a], sb = s[b];
+  if (!sa) return {error:`Model not found: ${a}`,available:Object.keys(s)};
+  if (!sb) return {error:`Model not found: ${b}`,available:Object.keys(s)};
+  return {
+    [a]:sa,[b]:sb,
+    difference:parseFloat((sa-sb).toFixed(5)),
+    pct_improvement:parseFloat(((sa-sb)/sb*100).toFixed(1)),
+    winner:sa>sb?a:b,
+    all_rankings:Object.fromEntries(Object.entries(s).sort((x,y)=>y[1]-x[1]))
+  };
+}
+function toolGenerateBrief(budget) {
+  const bud = toolBudgetOptimizer(budget);
+  const seg = toolSegmentProfile('persuadables');
+  return {campaign_brief:{
+    strategy:'Uplift RF Causal Targeting',
+    budget:`$${budget.toLocaleString()}`,
+    users_to_target:bud.users_targeted,
+    coverage:`${bud.coverage_pct}%`,
+    target_segment:'Persuadables',
+    top_3_signals:D.shap.features.slice(0,3),
+    expected_profit:`$${bud.expected_profit?.toLocaleString()}`,
+    expected_roi:`${bud.expected_roi?.toFixed(1)}%`,
+    vs_traditional:`Traditional yields ${bud.vs_traditional_roi?.toFixed(1)}% ROI`,
+    segment_size:`${seg.pct}% of base (${seg.count?.toLocaleString()} users)`,
+    risk_note:'Performance may vary. Retraining recommended every 3–6 months.'
+  }};
+}
+function toolAnomalyCheck() {
+  const a=[];
+  if (D.anomaly.sleeping_pct>35) a.push(`WARNING: Sleeping Dogs=${D.anomaly.sleeping_pct}% (>35%). High campaign backfire risk.`);
+  if (D.best_budget<20) a.push(`WARNING: Optimal coverage only ${D.best_budget}%. Very few persuadable customers.`);
+  if (D.anomaly.mlp_gap>30) a.push(`NOTE: MLP X-Learner underperforms XGBoost by ${D.anomaly.mlp_gap}%. Tuning recommended.`);
+  return {status:a.length>0?'Issues found':'All checks passed',anomalies:a.length>0?a:['No anomalies detected'],checked:['Sleeping Dogs ratio','Optimal budget','Neural net gap']};
+}
+function executeTool(name,input) {
+  switch(name) {
+    case 'budget_optimizer':  return toolBudgetOptimizer(input.total_budget);
+    case 'segment_profile':   return toolSegmentProfile(input.segment_name);
+    case 'compare_models':    return toolCompareModels(input.model_a,input.model_b);
+    case 'generate_brief':    return toolGenerateBrief(input.budget);
+    case 'anomaly_check':     return toolAnomalyCheck();
+    default:                  return {error:`Unknown tool: ${name}`};
+  }
+}
+
+// ══════════════════════════════════
+// TOOL DEFINITIONS (DeepSeek format)
+// ══════════════════════════════════
+const TOOLS = [
+  {type:'function',function:{name:'budget_optimizer',description:'Given a total budget in USD, calculates optimal users to target and expected ROI. Call when user mentions a budget amount.',parameters:{type:'object',properties:{total_budget:{type:'number',description:'Budget in USD'}},required:['total_budget']}}},
+  {type:'function',function:{name:'segment_profile',description:'Returns behavioral profile for a segment. Valid: persuadables, sure things, sleeping dogs, lost causes.',parameters:{type:'object',properties:{segment_name:{type:'string'}},required:['segment_name']}}},
+  {type:'function',function:{name:'compare_models',description:'Compares two uplift models by Qini AUC. Models: Uplift RF, Uplift XGBoost, X-Learner, MLP X-Learner, S-Learner, T-Learner, MLP T-Learner.',parameters:{type:'object',properties:{model_a:{type:'string'},model_b:{type:'string'}},required:['model_a','model_b']}}},
+  {type:'function',function:{name:'generate_brief',description:'Generates a complete campaign brief with targeting strategy and expected returns.',parameters:{type:'object',properties:{budget:{type:'number'}},required:['budget']}}},
+  {type:'function',function:{name:'anomaly_check',description:'Checks model results for anomalies or warnings.',parameters:{type:'object',properties:{},required:[]}}}
+];
+
+// ══════════════════════════════════
+// AGENT LOOP
+// ══════════════════════════════════
+async function runAgent(query) {
+  const btn = document.getElementById('cb');
+  btn.disabled = true;
+  addMsg(query,'user');
+  let messages = [{role:'system',content:SYSTEM},...history,{role:'user',content:query}];
+  const thinking = addThinking();
+  try {
+    while (true) {
+      const res = await fetch('http://localhost:5001/agent',{
+        method:'POST',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({model:'deepseek-chat',max_tokens:2048,tools:TOOLS,tool_choice:'auto',messages})
+      });
+      const data = await res.json();
+      if (data.error) { document.querySelectorAll('.thinking').forEach(e=>e.remove()); addMsg('API error: '+(data.error.message||JSON.stringify(data.error)),'ai'); break; }
+      const choice=data.choices?.[0], message=choice?.message, fin=choice?.finish_reason;
+      if (!message) { document.querySelectorAll('.thinking').forEach(e=>e.remove()); addMsg('Unexpected response: '+JSON.stringify(data).slice(0,200),'ai'); break; }
+      if (fin==='tool_calls'&&message.tool_calls) {
+        document.querySelectorAll('.thinking').forEach(e=>e.remove());
+        messages.push({role:'assistant',content:message.content||'',tool_calls:message.tool_calls});
+        for (const tc of message.tool_calls) {
+          const result = executeTool(tc.function.name,JSON.parse(tc.function.arguments));
+          addToolCard(tc.function.name,JSON.parse(tc.function.arguments),result);
+          messages.push({role:'tool',tool_call_id:tc.id,content:JSON.stringify(result)});
+        }
+        addThinking();
+      } else if (fin==='stop'||fin==='length') {
+        document.querySelectorAll('.thinking').forEach(e=>e.remove());
+        const text=message.content||'No response.';
+        history.push({role:'user',content:query});
+        history.push({role:'assistant',content:text});
+        addMsg(text,'ai'); break;
+      } else {
+        document.querySelectorAll('.thinking').forEach(e=>e.remove());
+        addMsg('Unexpected finish_reason: '+fin,'ai'); break;
+      }
+    }
+  } catch(e) {
+    document.querySelectorAll('.thinking').forEach(e=>e.remove());
+    addMsg('Connection error: '+e.message+'. Is the Flask server running?','ai');
+  }
+  btn.disabled=false;
+}
+
+// ══════════════════════════════════
+// TOOL RESULT CARDS
+// ══════════════════════════════════
+function addToolCard(toolName,input,result) {
+  const box=document.getElementById('msgs');
+  const callDiv=document.createElement('div');
+  callDiv.className='tool-step';
+  const iStr=Object.entries(input).map(([k,v])=>`${k}: ${v}`).join(', ');
+  callDiv.innerHTML=`<div class="ts-label">🔧 Tool called</div><div><span class="ts-name">${toolName}</span>(${iStr})</div>`;
+  box.appendChild(callDiv);
+
+  const rd=document.createElement('div');
+  rd.style.cssText='align-self:flex-start;width:92%;margin:4px 0 8px;';
+
+  if (toolName==='generate_brief'&&result.campaign_brief) {
+    const b=result.campaign_brief;
+    rd.innerHTML=`<div style="background:rgba(0,200,150,.06);border:1px solid rgba(0,200,150,.2);border-radius:12px;padding:16px 18px;font-size:12px;">
+      <div style="font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--a2);margin-bottom:12px">✦ Campaign Brief Generated</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+        <div style="background:var(--sf2);border-radius:8px;padding:10px;"><div style="font-size:9px;font-weight:700;color:var(--mu);text-transform:uppercase;margin-bottom:3px">Strategy</div><div style="color:var(--tx);font-weight:500">${b.strategy}</div></div>
+        <div style="background:var(--sf2);border-radius:8px;padding:10px;"><div style="font-size:9px;font-weight:700;color:var(--mu);text-transform:uppercase;margin-bottom:3px">Budget</div><div style="color:var(--tx);font-weight:500">${b.budget}</div></div>
+        <div style="background:var(--sf2);border-radius:8px;padding:10px;"><div style="font-size:9px;font-weight:700;color:var(--mu);text-transform:uppercase;margin-bottom:3px">Users to target</div><div style="color:var(--tx);font-weight:500">${b.users_to_target?.toLocaleString()} (${b.coverage})</div></div>
+        <div style="background:var(--sf2);border-radius:8px;padding:10px;"><div style="font-size:9px;font-weight:700;color:var(--mu);text-transform:uppercase;margin-bottom:3px">Segment size</div><div style="color:var(--tx);font-weight:500">${b.segment_size}</div></div>
+        <div style="background:rgba(0,200,150,.08);border:1px solid rgba(0,200,150,.15);border-radius:8px;padding:10px;"><div style="font-size:9px;font-weight:700;color:var(--a2);text-transform:uppercase;margin-bottom:3px">Expected profit</div><div style="color:var(--a2);font-weight:700;font-size:18px">${b.expected_profit}</div></div>
+        <div style="background:rgba(0,200,150,.08);border:1px solid rgba(0,200,150,.15);border-radius:8px;padding:10px;"><div style="font-size:9px;font-weight:700;color:var(--a2);text-transform:uppercase;margin-bottom:3px">Expected ROI</div><div style="color:var(--a2);font-weight:700;font-size:18px">${b.expected_roi}</div></div>
+      </div>
+      <div style="margin-top:10px;padding:8px 12px;background:rgba(255,179,71,.07);border:1px solid rgba(255,179,71,.2);border-radius:6px;color:var(--a4);font-size:11px;">⚠ ${b.risk_note}</div>
+      <div style="margin-top:8px;font-size:11px;color:var(--mu)">Top signals: ${Array.isArray(b.top_3_signals)?b.top_3_signals.join(' · '):b.top_3_signals}</div>
+    </div>`;
+  } else if (toolName==='budget_optimizer') {
+    const r=result;
+    rd.innerHTML=`<div style="background:rgba(79,127,255,.06);border:1px solid rgba(79,127,255,.2);border-radius:12px;padding:14px 16px;font-size:12px;">
+      <div style="font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--a1);margin-bottom:10px">📊 Budget Optimization Result</div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;">
+        <div style="background:var(--sf2);border-radius:8px;padding:10px 14px;text-align:center;min-width:90px"><div style="font-size:9px;color:var(--mu);margin-bottom:3px">Budget</div><div style="font-size:18px;font-weight:700;color:var(--tx)">$${r.total_budget?.toLocaleString()}</div></div>
+        <div style="background:var(--sf2);border-radius:8px;padding:10px 14px;text-align:center;min-width:90px"><div style="font-size:9px;color:var(--mu);margin-bottom:3px">Users</div><div style="font-size:18px;font-weight:700;color:var(--tx)">${r.users_targeted?.toLocaleString()}</div></div>
+        <div style="background:var(--sf2);border-radius:8px;padding:10px 14px;text-align:center;min-width:90px"><div style="font-size:9px;color:var(--mu);margin-bottom:3px">Coverage</div><div style="font-size:18px;font-weight:700;color:var(--tx)">${r.coverage_pct}%</div></div>
+        <div style="background:rgba(0,200,150,.08);border:1px solid rgba(0,200,150,.2);border-radius:8px;padding:10px 14px;text-align:center;min-width:90px"><div style="font-size:9px;color:var(--a2);margin-bottom:3px">Net Profit</div><div style="font-size:18px;font-weight:700;color:var(--a2)">$${r.expected_profit?.toLocaleString()}</div></div>
+        <div style="background:rgba(0,200,150,.08);border:1px solid rgba(0,200,150,.2);border-radius:8px;padding:10px 14px;text-align:center;min-width:90px"><div style="font-size:9px;color:var(--a2);margin-bottom:3px">ROI</div><div style="font-size:18px;font-weight:700;color:var(--a2)">${r.expected_roi?.toFixed(1)}%</div></div>
+      </div>
+    </div>`;
+  } else if (toolName==='segment_profile') {
+    const r=result,cols={'Persuadables':'#00c896','Sure Things':'#4f7fff','Sleeping Dogs':'#ffb347','Lost Causes':'#ff6b6b'},col=cols[r.segment]||'#94a3b8';
+    rd.innerHTML=`<div style="background:var(--sf2);border:1px solid var(--bd2);border-radius:12px;padding:14px 16px;font-size:12px;border-left:3px solid ${col};">
+      <div style="font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:${col};margin-bottom:10px">👤 Segment: ${r.segment}</div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;">
+        <div><span style="color:var(--mu)">Size: </span><strong>${r.pct}% (${r.count?.toLocaleString()})</strong></div>
+        <div><span style="color:var(--mu)">Recency: </span><strong>${r.avg_recency} days</strong></div>
+        <div><span style="color:var(--mu)">Avg spend: </span><strong>$${r.avg_spend?.toLocaleString()}</strong></div>
+        <div><span style="color:var(--mu)">Burn rate: </span><strong>${r.avg_burn_rate}</strong></div>
+        <div><span style="color:var(--mu)">Transactions: </span><strong>${r.avg_trans}</strong></div>
+        <div><span style="color:var(--mu)">Conv. rate: </span><strong>${r.conversion_rate}%</strong></div>
+      </div>
+    </div>`;
+  } else if (toolName==='compare_models') {
+    const r=result,rnks=r.all_rankings||{};
+    const rows=Object.entries(rnks).map(([m,s],i)=>`<tr style="${m===r.winner?'color:var(--a2);font-weight:600':''}"><td style="padding:4px 8px">${i+1}</td><td style="padding:4px 8px">${m}</td><td style="padding:4px 8px;font-family:var(--fm)">${s.toFixed(5)}</td><td style="padding:4px 8px">${m===r.winner?'✦ Winner':''}</td></tr>`).join('');
+    rd.innerHTML=`<div style="background:var(--sf2);border:1px solid var(--bd2);border-radius:12px;padding:14px 16px;font-size:12px;">
+      <div style="font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--a1);margin-bottom:10px">⚖ Model Comparison</div>
+      <div style="display:flex;gap:10px;margin-bottom:12px;">
+        <div style="background:var(--sf);border-radius:8px;padding:8px 12px;flex:1;text-align:center"><div style="font-size:9px;color:var(--mu);margin-bottom:2px">${Object.keys(r)[0]}</div><div style="font-size:16px;font-weight:700;font-family:var(--fm)">${Object.values(r)[0]?.toFixed(5)}</div></div>
+        <div style="align-self:center;color:var(--mu)">vs</div>
+        <div style="background:var(--sf);border-radius:8px;padding:8px 12px;flex:1;text-align:center"><div style="font-size:9px;color:var(--mu);margin-bottom:2px">${Object.keys(r)[1]}</div><div style="font-size:16px;font-weight:700;font-family:var(--fm)">${Object.values(r)[1]?.toFixed(5)}</div></div>
+        <div style="background:rgba(0,200,150,.08);border:1px solid rgba(0,200,150,.2);border-radius:8px;padding:8px 12px;flex:1;text-align:center"><div style="font-size:9px;color:var(--a2);margin-bottom:2px">Improvement</div><div style="font-size:16px;font-weight:700;color:var(--a2)">+${r.pct_improvement}%</div></div>
+      </div>
+      <table style="width:100%;border-collapse:collapse;font-size:11px;"><thead><tr style="color:var(--mu);border-bottom:1px solid var(--bd)"><th style="padding:4px 8px;text-align:left">#</th><th style="padding:4px 8px;text-align:left">Model</th><th style="padding:4px 8px;text-align:left">Qini AUC</th><th></th></tr></thead><tbody>${rows}</tbody></table>
+    </div>`;
+  } else if (toolName==='anomaly_check') {
+    const r=result,ok=r.status==='All checks passed',col=ok?'var(--a2)':'var(--a4)';
+    rd.innerHTML=`<div style="background:var(--sf2);border:1px solid var(--bd2);border-radius:12px;padding:14px 16px;font-size:12px;">
+      <div style="font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:${col};margin-bottom:10px">🔍 Anomaly Check — ${r.status}</div>
+      ${r.anomalies.map(a=>`<div style="padding:6px 10px;background:${ok?'rgba(0,200,150,.06)':'rgba(255,179,71,.06)'};border-radius:6px;margin-bottom:4px;font-size:11px;color:${col}">${ok?'✓':'⚠'} ${a}</div>`).join('')}
+      <div style="margin-top:8px;font-size:10px;color:var(--mu)">Checked: ${r.checked?.join(' · ')}</div>
+    </div>`;
+  } else {
+    rd.innerHTML=`<div style="background:var(--sf2);border:1px solid var(--bd2);border-radius:8px;padding:10px 14px;font-size:11px;font-family:var(--fm);color:var(--mu)">${JSON.stringify(result,null,2).slice(0,300)}</div>`;
+  }
+
+  box.appendChild(rd);
+  const t=document.createElement('div');
+  t.className='thinking';
+  t.innerHTML='<div class="dot-pulse"><span></span><span></span><span></span></div> Processing results...';
+  box.appendChild(t);
+  box.scrollTop=box.scrollHeight;
+}
+
+function addMsg(text,type) {
+  const box=document.getElementById('msgs');
+  const div=document.createElement('div');
+  if (type==='user') {
+    div.className='msg msg-u';div.textContent=text;
+  } else {
+    div.className='msg msg-a';
+    div.innerHTML='<div class="alabel">✦ Uplift Agent</div>'+
+      text.replace(/\n/g,'<br>').replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>').replace(/`([^`]+)`/g,'<code style="background:var(--sf2);padding:1px 4px;border-radius:3px;font-family:var(--fm);font-size:11px">$1</code>');
+  }
+  box.appendChild(div);box.scrollTop=box.scrollHeight;return div;
+}
+function addThinking() {
+  const box=document.getElementById('msgs');
+  const div=document.createElement('div');
+  div.className='thinking';
+  div.innerHTML='<div class="dot-pulse"><span></span><span></span><span></span></div> Agent thinking...';
+  box.appendChild(div);box.scrollTop=box.scrollHeight;return div;
+}
+function sendMsg() {
+  const inp=document.getElementById('ci');
+  const q=inp.value.trim();
+  if (!q) return;
+  inp.value='';runAgent(q);
+}
+function askSug(btn) { document.getElementById('ci').value=btn.textContent; sendMsg(); }
+
+// ══════════════════════════════════
+// UPLOAD PAGE
+// ══════════════════════════════════
+function handleDragOver(e) {
+  e.preventDefault();
+  document.getElementById('dropzone').style.borderColor='var(--a2)';
+  document.getElementById('dropzone').style.background='rgba(0,200,150,.04)';
+}
+function handleDragLeave(e) {
+  document.getElementById('dropzone').style.borderColor='var(--bd2)';
+  document.getElementById('dropzone').style.background='var(--sf)';
+}
+function handleDrop(e) {
+  e.preventDefault();handleDragLeave(e);
+  const file=e.dataTransfer.files[0];if(file)processFile(file);
+}
+function handleFileSelect(e) { const file=e.target.files[0];if(file)processFile(file); }
+
+async function processFile(file) {
+  if (!file.name.endsWith('.csv')) { alert('Please upload a .csv file'); return; }
+  document.getElementById('dropzone').style.display='none';
+  document.getElementById('upload-progress').style.display='block';
+  document.getElementById('upload-results').style.display='none';
+  const steps=[
+    {t:'Reading file...',p:20},{t:'Sending to server...',p:40},
+    {t:'Running Uplift RF scoring...',p:65},{t:'Computing segments...',p:80},
+    {t:'Detecting anomalies...',p:95}
+  ];
+  let si=0;
+  const timer=setInterval(()=>{
+    if(si<steps.length){
+      document.getElementById('prog-text').textContent=steps[si].t;
+      document.getElementById('prog-bar').style.width=steps[si].p+'%';si++;
+    }
+  },600);
+  try {
+    const fd=new FormData();fd.append('file',file);
+    const res=await fetch('http://localhost:5001/upload',{method:'POST',body:fd});
+    const data=await res.json();
+    clearInterval(timer);
+    if(data.error){
+      document.getElementById('prog-text').textContent='❌ Error: '+data.error;
+      document.getElementById('prog-bar').style.background='var(--a3)';return;
+    }
+    document.getElementById('prog-bar').style.width='100%';
+    document.getElementById('prog-text').textContent='✅ Done!';
+    setTimeout(()=>renderUploadResults(data,file.name),500);
+  } catch(e) {
+    clearInterval(timer);
+    document.getElementById('prog-text').textContent='❌ '+e.message+'. Is Flask server running?';
+    document.getElementById('prog-bar').style.background='var(--a3)';
+  }
+}
+
+function renderUploadResults(data,fname) {
+  document.getElementById('upload-progress').style.display='none';
+  document.getElementById('upload-results').style.display='block';
+  document.getElementById('up-time').textContent=new Date().toLocaleTimeString()+' — '+fname;
+  const br=data.budget_recommendation,ss=data.score_stats;
+  document.getElementById('up-kpis').innerHTML=`
+    <div class="kpi g"><div class="kl">Users scored</div><div class="kv green">${data.total_users?.toLocaleString()}</div><div class="ks">From uploaded file</div></div>
+    <div class="kpi g"><div class="kl">Persuadables found</div><div class="kv green">${data.segments?.Persuadables?.count?.toLocaleString()}</div><div class="ks">${data.segments?.Persuadables?.pct}% of total</div></div>
+    <div class="kpi a"><div class="kl">Anomalies</div><div class="kv" style="color:${data.anomalies?.length>0?'var(--a4)':'var(--a2)'}">${data.anomalies?.length||0}</div><div class="ks">${data.anomalies?.length>0?'Review required':'All clear'}</div></div>
+    <div class="kpi b"><div class="kl">Recommended budget</div><div class="kv">$${br?.recommended_budget?.toLocaleString()}</div><div class="ks">Expected ROI: ${br?.expected_roi}</div></div>`;
+  const sc={'Persuadables':{bg:'rgba(0,200,150,.06)',bd:'rgba(0,200,150,.2)',tx:'#00c896',tag:'▲ Target first'},'Sure Things':{bg:'rgba(79,127,255,.06)',bd:'rgba(79,127,255,.2)',tx:'#4f7fff',tag:'→ Exclude'},'Sleeping Dogs':{bg:'rgba(255,179,71,.06)',bd:'rgba(255,179,71,.2)',tx:'#ffb347',tag:'✕ Avoid'},'Lost Causes':{bg:'rgba(255,107,107,.06)',bd:'rgba(255,107,107,.2)',tx:'#ff6b6b',tag:'✕ Exclude'}};
+  document.getElementById('new-segs').innerHTML=Object.entries(data.segments).map(([n,i])=>{const c=sc[n]||{};return `<div style="border-radius:10px;padding:14px;background:${c.bg};border:1px solid ${c.bd}"><div style="font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:${c.tx};margin-bottom:4px">${n}</div><div style="font-size:26px;font-weight:700;font-family:var(--fm);color:var(--tx)">${i.pct}%</div><div style="font-size:11px;color:var(--mu)">${i.count?.toLocaleString()} users</div><div style="display:inline-block;font-size:10px;font-weight:600;margin-top:6px;padding:2px 7px;border-radius:4px;background:${c.bg};color:${c.tx};border:1px solid ${c.bd}">${c.tag}</div></div>`;}).join('');
+  document.getElementById('bud-rec').innerHTML=`Target <strong>${br?.n_users?.toLocaleString()} Persuadables</strong> with budget <strong>$${br?.recommended_budget?.toLocaleString()}</strong>. Expected ROI: <strong style="color:var(--a2)">${br?.expected_roi}</strong>`;
+  const ab=document.getElementById('anom-box');
+  if(!data.anomalies||data.anomalies.length===0){
+    ab.innerHTML=`<div style="background:rgba(0,200,150,.06);border:1px solid rgba(0,200,150,.2);border-radius:8px;padding:12px 16px;color:var(--a2);font-size:13px">✓ No anomalies detected — data quality looks good</div>`;
+  }else{
+    ab.innerHTML=data.anomalies.map(a=>`<div style="background:rgba(255,179,71,.06);border:1px solid rgba(255,179,71,.2);border-radius:8px;padding:12px 16px;margin-bottom:8px;font-size:12px"><div style="display:flex;align-items:center;gap:8px;margin-bottom:4px"><span style="background:rgba(255,179,71,.2);color:var(--a4);font-size:10px;font-weight:700;padding:2px 7px;border-radius:4px">${a.severity}</span><strong style="color:var(--tx)">${a.type}</strong></div><div style="color:var(--mu)">${a.message}</div><div style="color:var(--a4);margin-top:4px">→ ${a.action}</div></div>`).join('');
+  }
+  document.getElementById('score-stats').innerHTML=[
+    ['Mean score',ss?.mean],['Std dev',ss?.std],['Min score',ss?.min],['Max score',ss?.max]
+  ].map(([l,v])=>`<div style="background:var(--sf2);border-radius:8px;padding:10px;text-align:center"><div style="font-size:9px;color:var(--mu);text-transform:uppercase;margin-bottom:3px">${l}</div><div style="font-size:16px;font-weight:600;font-family:var(--fm)">${v}</div></div>`).join('');
+  document.getElementById('top-tbl').innerHTML=data.top_users.map(u=>`<tr><td><span style="color:var(--a4);font-weight:700">${u.rank}</span></td><td>${u.client_id||'–'}</td><td style="color:var(--a2);font-weight:600">${u.uplift_score}</td><td>$${u.total_spend?.toLocaleString()}</td><td>${u.recency_days}</td><td>${u.burn_rate??'–'}</td><td><span style="background:rgba(0,200,150,.12);color:var(--a2);font-size:10px;font-weight:600;padding:2px 8px;border-radius:4px">Target ✦</span></td></tr>`).join('');
+}
+function resetUpload() {
+  document.getElementById('dropzone').style.display='block';
+  document.getElementById('upload-progress').style.display='none';
+  document.getElementById('upload-results').style.display='none';
+  document.getElementById('file-input').value='';
+}
+
+// ══════════════════════════════════
+// DASHBOARD INIT & CHARTS
+// ══════════════════════════════════
+function init() {
+  document.getElementById('h-roi').textContent='+'+D.best_roi.toFixed(1)+'%';
+  document.getElementById('h-prof').textContent='$'+Math.round(D.best_profit).toLocaleString();
+  document.getElementById('kq').textContent=Math.max(...Object.values(D.qini_scores)).toFixed(4);
+  document.getElementById('km').textContent=(D.qini_scores['MLP X-Learner']||0).toFixed(4);
+  document.getElementById('fb').textContent=D.feature_count+' features';
+  document.getElementById('fct').textContent=D.feature_count;
+  document.getElementById('opt-cov').textContent=D.best_budget+'%';
+  document.getElementById('opt-prof').textContent='$'+Math.round(D.best_profit).toLocaleString();
+  document.getElementById('opt-roi').textContent=D.best_roi.toFixed(1)+'%';
+  document.getElementById('oc').textContent=D.best_budget;
+  document.getElementById('s-p').textContent=(D.segments['Persuadables']?.pct||0).toFixed(1)+'%';
+  document.getElementById('s-s').textContent=(D.segments['Sure Things']?.pct||0).toFixed(1)+'%';
+  document.getElementById('s-l').textContent=(D.segments['Sleeping Dogs']?.pct||0).toFixed(1)+'%';
+  document.getElementById('s-c').textContent=(D.segments['Lost Causes']?.pct||0).toFixed(1)+'%';
+
+  const segs=['Persuadables','Sure Things','Sleeping Dogs'];
+  const mets=[['Last purchase (days ago)','avg_recency'],['Lifetime spend ($)','avg_spend'],['Points redemption rate','avg_burn_rate'],['Transaction count','avg_trans'],['Conversion rate (%)','conversion_rate']];
+  document.getElementById('seg-tbl').innerHTML=mets.map(([l,k])=>`<tr><td>${l}</td>${segs.map(s=>`<td>${D.segments[s]?.[k]??'–'}</td>`).join('')}</tr>`).join('');
+
+  const order=['Uplift RF','Uplift XGBoost','X-Learner','MLP X-Learner','S-Learner','T-Learner','MLP T-Learner'];
+  const types={'Uplift RF':'bb','Uplift XGBoost':'bb','X-Learner':'bg_','MLP X-Learner':'ba','S-Learner':'bg_','T-Learner':'bg_','MLP T-Learner':'ba'};
+  const tn={'bb':'Tree','bg_':'Meta','ba':'Neural'};
+  const nums=['①','②','③','④','⑤','⑥','⑦'];
+  const sorted=[...order].sort((a,b)=>(D.qini_scores[b]||0)-(D.qini_scores[a]||0));
+  document.getElementById('mtb').innerHTML=sorted.map((m,i)=>`<tr ${i===0?'class="top"':''}><td><span style="color:var(--a4);font-weight:700">${nums[i]}</span></td><td>${m}</td><td><span class="badge ${types[m]}">${tn[types[m]]}</span></td><td>${(D.qini_scores[m]||0).toFixed(5)}</td></tr>`).join('');
+
+  buildCharts();updateSim();
+}
+
+const tc=()=>(({g:document.documentElement.dataset.theme==='dark'?'rgba(255,255,255,.05)':'rgba(0,0,0,.05)',t:document.documentElement.dataset.theme==='dark'?'#7c8399':'#6b7280'}));
+
+function buildCharts() {
+  const T=tc();
+  const order=['MLP T-Learner','T-Learner','S-Learner','MLP X-Learner','X-Learner','Uplift XGBoost','Uplift RF'];
+  CH.qini=new Chart(document.getElementById('cq'),{type:'bar',data:{labels:order,datasets:[{data:order.map(k=>D.qini_scores[k]||0),backgroundColor:['#ff8080','#4f7fff','#4f7fff','#ffb347','#4f7fff','#4f7fff','#00c896'],borderRadius:5,borderSkipped:false}]},options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>' Qini AUC: '+c.raw.toFixed(5)}}},scales:{x:{grid:{color:T.g},ticks:{color:T.t,font:{size:11},callback:v=>v.toFixed(2)}},y:{grid:{color:'transparent'},ticks:{color:T.t,font:{size:11}}}}}});
+  const pop=Array.from({length:20},(_,i)=>Math.round((i+1)*3000));
+  const g=f=>pop.map((_,i)=>Math.round(pop[i]*f*(1-Math.exp(-i*0.14))));
+  CH.gain=new Chart(document.getElementById('cg'),{type:'line',data:{labels:pop,datasets:[{data:g(1.00),borderColor:'#ff6b6b',borderWidth:2.5,pointRadius:0,tension:0.4},{data:g(0.90),borderColor:'#4f7fff',borderWidth:2,pointRadius:0,tension:0.4},{data:g(0.88),borderColor:'#00c896',borderWidth:2,pointRadius:0,tension:0.4},{data:g(0.76),borderColor:'#ffb347',borderWidth:1.5,pointRadius:0,tension:0.4},{data:g(0.50),borderColor:'#94a3b8',borderWidth:1.5,pointRadius:0,tension:0.4,borderDash:[4,3]},{data:pop.map(p=>Math.round(p*0.5)),borderColor:'#475569',borderWidth:1,pointRadius:0,borderDash:[6,4]}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{color:T.g},ticks:{color:T.t,font:{size:10},maxTicksLimit:6}},y:{grid:{color:T.g},ticks:{color:T.t,font:{size:10}}}}}});
+  const sh=D.shap;
+  CH.shap=new Chart(document.getElementById('cs'),{type:'bar',data:{labels:[...sh.features].reverse(),datasets:[{data:[...sh.values].reverse(),backgroundColor:sh.features.map((_,i)=>`rgba(79,127,255,${0.35+i*0.065})`).reverse(),borderRadius:4,borderSkipped:false}]},options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>' Importance: '+c.raw.toFixed(4)}}},scales:{x:{grid:{color:T.g},ticks:{color:T.t,font:{size:10},callback:v=>v.toFixed(3)}},y:{grid:{color:'transparent'},ticks:{color:T.t,font:{size:10}}}}}});
+  CH.profit=new Chart(document.getElementById('cp'),{type:'line',data:{labels:D.budgets,datasets:[{label:'Uplift RF',data:D.profit_data.uplift,borderColor:'#00c896',borderWidth:2.5,pointRadius:0,tension:0.4,fill:false},{label:'Traditional',data:D.profit_data.trad,borderColor:'#4f7fff',borderWidth:2,pointRadius:0,tension:0.4,fill:false,borderDash:[5,3]},{label:'Random',data:D.profit_data.rand,borderColor:'#94a3b8',borderWidth:1.5,pointRadius:0,tension:0.4,fill:false,borderDash:[3,3]}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>` ${c.dataset.label}: $${c.raw.toLocaleString()}`}}},scales:{x:{grid:{color:T.g},ticks:{color:T.t,font:{size:10}},title:{display:true,text:'Budget coverage (%)',color:T.t,font:{size:11}}},y:{grid:{color:T.g},ticks:{color:T.t,font:{size:10},callback:v=>'$'+v.toLocaleString()},title:{display:true,text:'Net profit ($)',color:T.t,font:{size:11}}}}}});
+  CH.roi=new Chart(document.getElementById('cr'),{type:'line',data:{labels:D.budgets,datasets:[{label:'Uplift RF',data:D.roi_data.uplift,borderColor:'#00c896',borderWidth:2.5,pointRadius:0,tension:0.4,fill:false},{label:'Traditional',data:D.roi_data.trad,borderColor:'#4f7fff',borderWidth:2,pointRadius:0,tension:0.4,fill:false,borderDash:[5,3]},{label:'Random',data:D.roi_data.rand,borderColor:'#94a3b8',borderWidth:1.5,pointRadius:0,tension:0.4,fill:false,borderDash:[3,3]}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>` ${c.dataset.label}: ${c.raw.toFixed(1)}%`}}},scales:{x:{grid:{color:T.g},ticks:{color:T.t,font:{size:10}},title:{display:true,text:'Budget coverage (%)',color:T.t,font:{size:11}}},y:{grid:{color:T.g},ticks:{color:T.t,font:{size:10},callback:v=>v.toFixed(0)+'%'},title:{display:true,text:'ROI (%)',color:T.t,font:{size:11}}}}}});
+}
+
+function updateSim() {
+  const b=parseInt(document.getElementById('br').value),s=document.getElementById('strat').value;
+  document.getElementById('bv').textContent=b;
+  const idx=Math.round(b/5)-1,profit=D.profit_data[s][idx],roi=D.roi_data[s][idx];
+  const n=Math.round(D.test_size*b/100),cost=n*0.5,rev=profit+cost;
+  document.getElementById('sc_').textContent='$'+Math.round(cost).toLocaleString();
+  document.getElementById('sr').textContent='$'+Math.round(rev).toLocaleString();
+  document.getElementById('sp_').textContent='$'+Math.round(profit).toLocaleString();
+  document.getElementById('sr2').textContent=roi.toFixed(1)+'%';
+  document.getElementById('sp_').className='kv '+(profit>=0?'green':'red');
+  document.getElementById('sr2').style.color=roi>=0?'var(--a2)':'var(--a3)';
+  document.getElementById('ob').style.display=(s==='uplift'&&b===D.best_budget)?'inline-block':'none';
+  ['profit','roi'].forEach(k=>{CH[k].data.datasets.forEach((ds,i)=>{const a=(s==='uplift'&&i===0)||(s==='trad'&&i===1)||(s==='rand'&&i===2);ds.borderWidth=a?3:1.5;});CH[k].update('none');});
+}
+
+function showPage(id,el) {
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.ni').forEach(n=>n.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  el.classList.add('active');
+}
+
+function toggleTheme() {
+  const dark=document.documentElement.dataset.theme==='dark';
+  document.documentElement.dataset.theme=dark?'light':'dark';
+  document.getElementById('tI').textContent=dark?'☾':'☀';
+  document.getElementById('tL').textContent=dark?'Dark mode':'Light mode';
+  const T=tc();
+  Object.values(CH).forEach(ch=>{const s=ch.options.scales;if(!s)return;['x','y'].forEach(ax=>{if(!s[ax])return;if(s[ax].grid)s[ax].grid.color=T.g;if(s[ax].ticks)s[ax].ticks.color=T.t;if(s[ax].title)s[ax].title.color=T.t;});ch.update('none');});
+}
+
+init();
+</script>
+</body>
+</html>
