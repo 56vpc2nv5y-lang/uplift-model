@@ -6,6 +6,7 @@
 <title>Uplift Command Center — NTU MSA 2024</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 <style>
 [data-theme="dark"]{
   --bg:#0f1117;--sf:#181c27;--sf2:#1f2436;
@@ -163,6 +164,22 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;heigh
 .msg{max-width:84%;padding:12px 16px;border-radius:12px;font-size:13px;line-height:1.65;}
 .msg-u{background:var(--cu);border:1px solid var(--bd2);align-self:flex-end;color:var(--tx);border-radius:12px 12px 3px 12px;}
 .msg-a{background:var(--ca);border:1px solid rgba(0,200,150,.15);align-self:flex-start;color:var(--tx);border-radius:12px 12px 12px 3px;max-width:92%;}
+.msg-a table{width:100%;border-collapse:collapse;margin:10px 0;font-size:12px;}
+.msg-a th{background:var(--sf2);padding:8px 10px;text-align:left;border-bottom:1px solid var(--bd);font-weight:600;}
+.msg-a td{padding:8px 10px;border-bottom:1px solid var(--bd);}
+.msg-a tr:last-child td{border-bottom:none;}
+.msg-a ul,.msg-a ol{margin:8px 0;padding-left:20px;}
+.msg-a li{margin:4px 0;line-height:1.6;}
+.msg-a h1,.msg-a h2,.msg-a h3{margin:12px 0 8px;font-weight:600;line-height:1.3;}
+.msg-a h1{font-size:18px;}
+.msg-a h2{font-size:16px;}
+.msg-a h3{font-size:14px;}
+.msg-a code{background:var(--sf2);padding:2px 6px;border-radius:4px;font-family:var(--fm);font-size:11px;}
+.msg-a pre{background:var(--sf2);padding:10px;border-radius:6px;overflow-x:auto;margin:8px 0;}
+.msg-a pre code{background:none;padding:0;}
+.msg-a p{margin:6px 0;}
+.msg-a blockquote{border-left:3px solid var(--a2);padding-left:12px;margin:8px 0;color:var(--mu);font-style:italic;}
+.msg-a hr{border:none;border-top:1px solid var(--bd);margin:12px 0;}
 .msg-a .alabel{font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--a2);margin-bottom:5px;}
 .tool-step{align-self:flex-start;background:rgba(79,127,255,.06);border:1px solid rgba(79,127,255,.15);border-radius:10px;padding:10px 14px;font-size:12px;color:var(--mu);width:90%;}
 .tool-step .ts-label{font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--a1);margin-bottom:5px;}
@@ -178,11 +195,23 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;heigh
 .cb{background:var(--a2);color:#fff;border:none;font-family:var(--fn);font-size:13px;font-weight:500;padding:10px 18px;border-radius:10px;cursor:pointer;transition:opacity .15s;white-space:nowrap;}
 .cb:hover{opacity:.85;}.cb:disabled{opacity:.4;cursor:not-allowed;}
 
-/* ── Upload page ── */
-.dropzone{border:2px dashed var(--bd2);border-radius:14px;padding:48px 24px;text-align:center;cursor:pointer;transition:all .2s;margin-bottom:20px;background:var(--sf);}
-.dropzone:hover{border-color:var(--a2);background:rgba(0,200,150,.03);}
-.prog-bar-wrap{background:var(--bd2);border-radius:4px;height:4px;overflow:hidden;margin-top:12px;}
-.prog-bar{background:var(--a1);height:100%;border-radius:4px;width:0%;transition:width .3s;}
+/* ── Settings Modal ── */
+.modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:1000;display:none;align-items:center;justify-content:center;backdrop-filter:blur(4px);}
+.modal-backdrop.open{display:flex;}
+.modal{background:var(--sf);border:1px solid var(--bd2);border-radius:14px;padding:28px 32px;max-width:480px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,.5);}
+.modal-title{font-size:18px;font-weight:600;color:var(--tx);margin-bottom:8px;}
+.modal-desc{font-size:13px;color:var(--mu);margin-bottom:20px;line-height:1.6;}
+.input-group{margin-bottom:20px;}
+.input-label{font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--mu);margin-bottom:8px;display:block;}
+.input-field{width:100%;background:var(--sf2);border:1px solid var(--bd2);border-radius:8px;padding:10px 14px;color:var(--tx);font-size:13px;font-family:var(--fm);}
+.input-field:focus{outline:none;border-color:var(--a1);}
+.modal-actions{display:flex;gap:10px;justify-content:flex-end;}
+.btn{padding:10px 20px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;transition:all .15s;border:none;font-family:var(--fn);}
+.btn-primary{background:linear-gradient(135deg,var(--a2),#009f77);color:#fff;}
+.btn-primary:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(0,200,150,.3);}
+.btn-secondary{background:var(--sf2);color:var(--tx);border:1px solid var(--bd2);}
+.btn-secondary:hover{background:var(--bd);}
+
 
 ::-webkit-scrollbar{width:5px;height:5px;}::-webkit-scrollbar-track{background:transparent;}::-webkit-scrollbar-thumb{background:var(--bd2);border-radius:3px;}
 </style>
@@ -193,7 +222,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;heigh
 <aside class="sidebar">
   <div class="brand">
     <div class="brand-t">Uplift Command Center</div>
-    <div class="brand-s">NTU MSA Dissertation 2024</div>
+    <div class="brand-s">NTU MSA Dissertation 2026</div>
   </div>
   <div class="ns">
     <div class="nl">Dashboard</div>
@@ -201,10 +230,10 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;heigh
     <div class="ni"         onclick="showPage('p2',this)"><span>◉</span>Customer intelligence</div>
     <div class="ni"         onclick="showPage('p3',this)"><span>◎</span>Budget simulator</div>
     <div class="ni sep agent"  onclick="showPage('p4',this)"><span>✦</span>AI agent</div>
-    <div class="ni upload"  onclick="showPage('p5',this)"><span>↑</span>Upload data</div>
   </div>
   <div style="padding:0 12px;margin-top:10px;">
     <div class="tb" onclick="toggleTheme()"><span id="tI">☀</span><span id="tL">Light mode</span></div>
+    <div class="tb" onclick="openSettings()" style="margin-top:8px"><span>⚙</span><span>API Settings</span></div>
   </div>
   <div class="sfooter">
     <div style="font-weight:500;color:var(--tx);font-size:12px;margin-bottom:4px">Data source</div>
@@ -212,6 +241,23 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;heigh
     <br><span style="display:inline-block;background:rgba(0,200,150,.12);color:var(--a2);font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px;margin-top:6px" id="fb">– features</span>
   </div>
 </aside>
+
+<!-- ══════ API Settings Modal ══════ -->
+<div class="modal-backdrop" id="settings-modal">
+  <div class="modal">
+    <div class="modal-title">⚙ API Settings</div>
+    <div class="modal-desc">Enter your DeepSeek API key to enable the AI agent. Your key is stored locally in your browser and never sent to any server except DeepSeek.</div>
+    <div class="input-group">
+      <label class="input-label">DeepSeek API Key</label>
+      <input type="password" class="input-field" id="api-key-input" placeholder="sk-..." />
+      <div style="font-size:10px;color:var(--mu);margin-top:6px">Get your API key from <a href="https://platform.deepseek.com/" target="_blank" style="color:var(--a1)">platform.deepseek.com</a></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeSettings()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveSettings()">Save</button>
+    </div>
+  </div>
+</div>
 
 <!-- ══════ MAIN ══════ -->
 <main class="main">
@@ -403,14 +449,14 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;heigh
   </div>
   <div style="font-size:11px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--mu);margin-bottom:8px">Try these</div>
   <div class="sugs">
-    <button class="sug" onclick="askSug(this)">我有 $5000 预算，帮我制定完整的投放方案</button>
-    <button class="sug" onclick="askSug(this)">检查一下模型结果有没有异常</button>
+    <button class="sug" onclick="askSug(this)">I have a $5000 budget, help me create a complete campaign plan</button>
+    <button class="sug" onclick="askSug(this)">Check if there are any anomalies in the model results</button>
     <button class="sug" onclick="askSug(this)">Why does Uplift RF outperform T-Learner? Show me the data</button>
     <button class="sug" onclick="askSug(this)">What is the profile of a Persuadable customer?</button>
     <button class="sug" onclick="askSug(this)">Generate a campaign brief for a $10,000 budget</button>
-    <button class="sug" onclick="askSug(this)">为什么预算超过45%之后收益会下降？</button>
+    <button class="sug" onclick="askSug(this)">Why does ROI decline after 45% budget coverage?</button>
     <button class="sug" onclick="askSug(this)">Give me a 30-second pitch for this project</button>
-    <button class="sug" onclick="askSug(this)">如果导师问为什么用Uplift RF，我怎么回答？</button>
+    <button class="sug" onclick="askSug(this)">If my advisor asks why we use Uplift RF, how should I answer?</button>
   </div>
   <div class="chat-win">
     <div class="chat-msgs" id="msgs">
@@ -426,93 +472,13 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;heigh
   </div>
 </div>
 
-<!-- ═══ PAGE 5: UPLOAD DATA ═══ -->
-<div id="p5" class="page">
-  <div class="ph"><h1>Upload new customer data</h1><p>Upload a CSV to re-score customers with your trained Uplift RF and get an instant targeting recommendation</p></div>
-
-  <div style="background:rgba(255,179,71,.06);border:1px solid rgba(255,179,71,.2);border-radius:12px;padding:16px 20px;margin-bottom:20px;font-size:13px;color:var(--tx);line-height:1.7">
-    <strong style="color:var(--a4)">How it works:</strong>
-    Upload any CSV with the same column structure as your training data →
-    The server scores each customer using your saved Uplift RF model →
-    You get an updated four-quadrant segmentation, top users to target,
-    anomaly alerts, and a budget recommendation — all in under 10 seconds.
-    <br><br>
-    <strong style="color:var(--mu)">Required format:</strong>
-    Same columns as <code style="background:var(--sf2);padding:1px 5px;border-radius:3px;font-family:var(--fm);font-size:11px">sample_upload.csv</code> in your figures folder.
-    The server needs to be running (Flask on port 5001).
-  </div>
-
-  <!-- Drop zone -->
-  <div class="dropzone" id="dropzone"
-    onclick="document.getElementById('file-input').click()"
-    ondragover="handleDragOver(event)"
-    ondragleave="handleDragLeave(event)"
-    ondrop="handleDrop(event)">
-    <div style="font-size:40px;margin-bottom:14px">📂</div>
-    <div style="font-size:15px;font-weight:500;color:var(--tx);margin-bottom:6px">Drop CSV file here or click to browse</div>
-    <div style="font-size:12px;color:var(--mu)">Supports .csv files · Same column format as training data</div>
-    <input type="file" id="file-input" accept=".csv" style="display:none" onchange="handleFileSelect(event)">
-  </div>
-
-  <!-- Progress -->
-  <div id="upload-progress" style="display:none;margin-bottom:20px">
-    <div class="card" style="padding:20px 24px">
-      <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">
-        <div class="dot-pulse"><span></span><span></span><span></span></div>
-        <div style="font-size:13px;color:var(--mu)" id="prog-text">Uploading file...</div>
-      </div>
-      <div class="prog-bar-wrap"><div class="prog-bar" id="prog-bar"></div></div>
-    </div>
-  </div>
-
-  <!-- Results -->
-  <div id="upload-results" style="display:none">
-    <div class="kr" id="up-kpis"></div>
-    <div class="g2">
-      <div class="card">
-        <div class="ch">
-          <div class="ct">Updated segmentation</div>
-          <span style="font-size:11px;color:var(--a2)" id="up-time"></span>
-        </div>
-        <div id="new-segs" style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:14px"></div>
-        <div class="rec"><div class="bl_">Budget recommendation</div><div id="bud-rec">–</div></div>
-      </div>
-      <div class="card">
-        <div class="ch"><div class="ct">Anomaly detection</div></div>
-        <div id="anom-box"></div>
-        <div style="margin-top:16px">
-          <div class="ct" style="margin-bottom:10px">Score statistics</div>
-          <div id="score-stats" style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px"></div>
-        </div>
-      </div>
-    </div>
-    <div class="card">
-      <div class="ch">
-        <div class="ct">Top 10 users to target</div>
-        <div style="font-size:11px;color:var(--mu)">Highest uplift score Persuadables</div>
-      </div>
-      <div class="tw">
-        <table>
-          <thead><tr><th>Rank</th><th>Client ID</th><th>Uplift Score</th><th>Total Spend ($)</th><th>Recency (days)</th><th>Burn Rate</th><th>Action</th></tr></thead>
-          <tbody id="top-tbl"></tbody>
-        </table>
-      </div>
-    </div>
-    <div style="text-align:center;margin-top:10px">
-      <button onclick="resetUpload()" style="background:var(--sf);border:1px solid var(--bd2);color:var(--mu);font-family:var(--fn);font-size:13px;padding:10px 24px;border-radius:10px;cursor:pointer">
-        Upload another file
-      </button>
-    </div>
-  </div>
-</div>
 
 </main>
 
 <!-- ══════ SCRIPTS ══════ -->
 <script>
 const D = {"qini_scores": {"S-Learner": 0.05262, "T-Learner": 0.03874, "X-Learner": 0.14785, "Uplift RF": 0.20356, "Uplift XGBoost": 0.15242, "MLP T-Learner": 0.02247, "MLP X-Learner": 0.10549}, "shap": {"features": ["trans_per_recency", "freq_x_tenure", "recency_x_high_value", "recency_days", "avg_ticket_size", "min_spend", "issue_redeem_delay", "tenure_x_spend", "days_since_issue", "avg_pts_spent_per_trans"], "values": [0.08718, 0.06518, 0.04209, 0.03077, 0.02612, 0.02121, 0.01223, 0.00897, 0.00833, 0.008]}, "segments": {"Persuadables": {"count": 19091, "pct": 31.8, "avg_recency": 201.8, "avg_spend": 87210.5, "avg_burn_rate": -1.051, "avg_trans": 114.1, "conversion_rate": 100.0}, "Sure Things": {"count": 18110, "pct": 30.2, "avg_recency": 201.8, "avg_spend": 88194.3, "avg_burn_rate": -1.477, "avg_trans": 114.5, "conversion_rate": 100.0}, "Sleeping Dogs": {"count": 11995, "pct": 20.0, "avg_recency": 201.9, "avg_spend": 86947.2, "avg_burn_rate": -2.603, "avg_trans": 114.1, "conversion_rate": 0.0}, "Lost Causes": {"count": 10816, "pct": 18.0, "avg_recency": 201.8, "avg_spend": 86139.6, "avg_burn_rate": -1.141, "avg_trans": 112.3, "conversion_rate": 0.0}}, "budgets": [5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 100], "profit_data": {"uplift": [3270.0, 5512.68, 7447.1, 9510.99, 10082.06, 9840.36, 10912.67, 11275.44, 12523.36, 11394.83, 12044.61, 11006.43, 10843.91, 10447.68, 7287.38, 6260.54, 4776.4, 4038.88, 4175.21, 3106.52], "trad": [508.67, -765.17, -1114.87, -2596.31, -3125.41, -3944.85, -5213.05, -5875.51, -5600.42, -6676.87, -5546.13, -4571.33, -4849.87, -4687.04, -4114.95, -3635.91, -3013.36, -2102.55, -276.66, 3106.52], "rand": [-785.9, -1203.56, 310.71, 1536.4, 1612.94, 1366.22, 2536.0, 1584.76, 2157.12, 2162.12, 1913.45, 1162.94, 2189.45, 2367.01, 1903.86, 2850.38, 2231.16, 2274.02, 2339.88, 3106.52]}, "roi_data": {"uplift": [218.0, 183.73, 165.47, 158.49, 134.4, 109.32, 103.91, 93.95, 92.75, 75.95, 72.98, 61.13, 55.6, 49.74, 32.38, 26.08, 18.73, 14.96, 14.65, 10.35], "trad": [33.91, -25.5, -24.77, -43.26, -41.66, -43.82, -49.64, -48.95, -41.48, -44.5, -33.61, -25.39, -24.87, -22.32, -18.28, -15.15, -11.81, -7.79, -0.97, 10.35], "rand": [-52.39, -40.11, 6.9, 25.6, 21.5, 15.18, 24.15, 13.2, 15.98, 14.41, 11.59, 6.46, 11.23, 11.27, 8.46, 11.87, 8.75, 8.42, 8.21, 10.35]}, "best_budget": 45, "best_profit": 12523.36, "best_cost": 13502.5, "best_roi": 92.75, "feature_count": 70, "test_size": 60012, "anomaly": {"sleeping_pct": 20.0, "mlp_gap": 28.7}};
-const SYSTEM = "You are an AI decision agent for an NTU MSA dissertation on Budget-Constrained Uplift Targeting.\n\nYou have 5 tools that query REAL model results from the X5 RetailHero dataset (45M transactions, 200K customers).\nALWAYS use tools — never guess numbers. For complex questions, call multiple tools in sequence.\n\nReal context:\n- Best model: Uplift RF (Qini AUC 0.20356)\n- Optimal budget: 45% coverage, $12,523 profit, 92.8% ROI\n- Top SHAP feature: trans_per_recency\n- Persuadables: 31.8% of customers\n\nAnswer in the same language as the user (Chinese or English). Be concise. End with one actionable recommendation.";
-const API_KEY = "sk-d1a3cbe02e1e42ca89033e02b1823c5b";
+const SYSTEM = "You are an AI decision agent for an NTU MSA dissertation on Budget-Constrained Uplift Targeting.\n\nYou have 5 tools that query REAL model results from the X5 RetailHero dataset (45M transactions, 200K customers).\nALWAYS use tools when you need specific data — never guess numbers.\n\nIMPORTANT: Be efficient with tool calls:\n- compare_models returns FULL rankings of all 7 models, so ONE call is enough to see all comparisons\n- Don't call the same tool multiple times with slightly different inputs\n- Call multiple different tools when needed, but avoid redundancy\n\nAUDIENCE: You're explaining to MARKETING PROFESSIONALS, not data scientists:\n- Translate technical metrics into business value (e.g., 'Qini AUC' → 'accuracy at finding responsive customers')\n- Use analogies and simple comparisons (e.g., 'like finding a needle in a haystack, but we found 31.8% of the needles')\n- Focus on ROI, profit, and campaign outcomes rather than model internals\n- Explain WHY something matters for their campaigns, not just WHAT the number is\n- Keep jargon minimal; when using technical terms, immediately explain them in plain language\n\nReal context:\n- Best model: Uplift RF (Qini AUC 0.20356) — finds responsive customers 33.6% better than next-best model\n- Optimal budget: 45% coverage, $12,523 profit, 92.8% ROI — targeting less than half the audience makes more money\n- Top SHAP feature: trans_per_recency — recent active customers respond best\n- Persuadables: 31.8% of customers — only these people respond to ads; rest either buy anyway or ignore ads\n\nAnswer in the same language as the user (Chinese or English). Be concise but clear. End with one actionable recommendation for their marketing strategy.";
 const CH = {};
 let history = [];
 
@@ -594,7 +560,7 @@ function executeTool(name,input) {
 const TOOLS = [
   {type:'function',function:{name:'budget_optimizer',description:'Given a total budget in USD, calculates optimal users to target and expected ROI. Call when user mentions a budget amount.',parameters:{type:'object',properties:{total_budget:{type:'number',description:'Budget in USD'}},required:['total_budget']}}},
   {type:'function',function:{name:'segment_profile',description:'Returns behavioral profile for a segment. Valid: persuadables, sure things, sleeping dogs, lost causes.',parameters:{type:'object',properties:{segment_name:{type:'string'}},required:['segment_name']}}},
-  {type:'function',function:{name:'compare_models',description:'Compares two uplift models by Qini AUC. Models: Uplift RF, Uplift XGBoost, X-Learner, MLP X-Learner, S-Learner, T-Learner, MLP T-Learner.',parameters:{type:'object',properties:{model_a:{type:'string'},model_b:{type:'string'}},required:['model_a','model_b']}}},
+  {type:'function',function:{name:'compare_models',description:'Compares two uplift models by Qini AUC and returns FULL RANKINGS of all 7 models. Use this once to see how all models compare. Models: Uplift RF, Uplift XGBoost, X-Learner, MLP X-Learner, S-Learner, T-Learner, MLP T-Learner.',parameters:{type:'object',properties:{model_a:{type:'string'},model_b:{type:'string'}},required:['model_a','model_b']}}},
   {type:'function',function:{name:'generate_brief',description:'Generates a complete campaign brief with targeting strategy and expected returns.',parameters:{type:'object',properties:{budget:{type:'number'}},required:['budget']}}},
   {type:'function',function:{name:'anomaly_check',description:'Checks model results for anomalies or warnings.',parameters:{type:'object',properties:{},required:[]}}}
 ];
@@ -603,6 +569,13 @@ const TOOLS = [
 // AGENT LOOP
 // ══════════════════════════════════
 async function runAgent(query) {
+  const apiKey = localStorage.getItem('deepseek_api_key');
+  if (!apiKey) {
+    openSettings();
+    addMsg('Please configure your DeepSeek API key in settings to use the AI agent.', 'ai');
+    return;
+  }
+
   const btn = document.getElementById('cb');
   btn.disabled = true;
   addMsg(query,'user');
@@ -610,14 +583,40 @@ async function runAgent(query) {
   const thinking = addThinking();
   try {
     while (true) {
-      const res = await fetch('http://localhost:5001/agent',{
-        method:'POST',headers:{'Content-Type':'application/json'},
-        body:JSON.stringify({model:'deepseek-chat',max_tokens:2048,tools:TOOLS,tool_choice:'auto',messages})
+      const res = await fetch('https://api.deepseek.com/chat/completions',{
+        method:'POST',
+        headers:{
+          'Content-Type':'application/json',
+          'Authorization': `Bearer ${apiKey}`
+        },
+        body:JSON.stringify({
+          model:'deepseek-chat',
+          max_tokens:2048,
+          tools:TOOLS,
+          tool_choice:'auto',
+          messages
+        })
       });
+      
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({}));
+        throw new Error(errorData.error?.message || `API error: ${res.status} ${res.statusText}`);
+      }
+      
       const data = await res.json();
-      if (data.error) { document.querySelectorAll('.thinking').forEach(e=>e.remove()); addMsg('API error: '+(data.error.message||JSON.stringify(data.error)),'ai'); break; }
+      if (data.error) { 
+        document.querySelectorAll('.thinking').forEach(e=>e.remove()); 
+        addMsg('API error: '+(data.error.message||JSON.stringify(data.error)),'ai'); 
+        break; 
+      }
+      
       const choice=data.choices?.[0], message=choice?.message, fin=choice?.finish_reason;
-      if (!message) { document.querySelectorAll('.thinking').forEach(e=>e.remove()); addMsg('Unexpected response: '+JSON.stringify(data).slice(0,200),'ai'); break; }
+      if (!message) { 
+        document.querySelectorAll('.thinking').forEach(e=>e.remove()); 
+        addMsg('Unexpected response: '+JSON.stringify(data).slice(0,200),'ai'); 
+        break; 
+      }
+      
       if (fin==='tool_calls'&&message.tool_calls) {
         document.querySelectorAll('.thinking').forEach(e=>e.remove());
         messages.push({role:'assistant',content:message.content||'',tool_calls:message.tool_calls});
@@ -640,7 +639,7 @@ async function runAgent(query) {
     }
   } catch(e) {
     document.querySelectorAll('.thinking').forEach(e=>e.remove());
-    addMsg('Connection error: '+e.message+'. Is the Flask server running?','ai');
+    addMsg('Error: '+e.message+'. Please check your API key in settings.','ai');
   }
   btn.disabled=false;
 }
@@ -738,8 +737,9 @@ function addMsg(text,type) {
     div.className='msg msg-u';div.textContent=text;
   } else {
     div.className='msg msg-a';
-    div.innerHTML='<div class="alabel">✦ Uplift Agent</div>'+
-      text.replace(/\n/g,'<br>').replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>').replace(/`([^`]+)`/g,'<code style="background:var(--sf2);padding:1px 4px;border-radius:3px;font-family:var(--fm);font-size:11px">$1</code>');
+    // Use marked.js to render markdown properly
+    const renderedHtml = marked.parse(text);
+    div.innerHTML='<div class="alabel">✦ Uplift Agent</div>'+renderedHtml;
   }
   box.appendChild(div);box.scrollTop=box.scrollHeight;return div;
 }
@@ -761,87 +761,6 @@ function askSug(btn) { document.getElementById('ci').value=btn.textContent; send
 // ══════════════════════════════════
 // UPLOAD PAGE
 // ══════════════════════════════════
-function handleDragOver(e) {
-  e.preventDefault();
-  document.getElementById('dropzone').style.borderColor='var(--a2)';
-  document.getElementById('dropzone').style.background='rgba(0,200,150,.04)';
-}
-function handleDragLeave(e) {
-  document.getElementById('dropzone').style.borderColor='var(--bd2)';
-  document.getElementById('dropzone').style.background='var(--sf)';
-}
-function handleDrop(e) {
-  e.preventDefault();handleDragLeave(e);
-  const file=e.dataTransfer.files[0];if(file)processFile(file);
-}
-function handleFileSelect(e) { const file=e.target.files[0];if(file)processFile(file); }
-
-async function processFile(file) {
-  if (!file.name.endsWith('.csv')) { alert('Please upload a .csv file'); return; }
-  document.getElementById('dropzone').style.display='none';
-  document.getElementById('upload-progress').style.display='block';
-  document.getElementById('upload-results').style.display='none';
-  const steps=[
-    {t:'Reading file...',p:20},{t:'Sending to server...',p:40},
-    {t:'Running Uplift RF scoring...',p:65},{t:'Computing segments...',p:80},
-    {t:'Detecting anomalies...',p:95}
-  ];
-  let si=0;
-  const timer=setInterval(()=>{
-    if(si<steps.length){
-      document.getElementById('prog-text').textContent=steps[si].t;
-      document.getElementById('prog-bar').style.width=steps[si].p+'%';si++;
-    }
-  },600);
-  try {
-    const fd=new FormData();fd.append('file',file);
-    const res=await fetch('http://localhost:5001/upload',{method:'POST',body:fd});
-    const data=await res.json();
-    clearInterval(timer);
-    if(data.error){
-      document.getElementById('prog-text').textContent='❌ Error: '+data.error;
-      document.getElementById('prog-bar').style.background='var(--a3)';return;
-    }
-    document.getElementById('prog-bar').style.width='100%';
-    document.getElementById('prog-text').textContent='✅ Done!';
-    setTimeout(()=>renderUploadResults(data,file.name),500);
-  } catch(e) {
-    clearInterval(timer);
-    document.getElementById('prog-text').textContent='❌ '+e.message+'. Is Flask server running?';
-    document.getElementById('prog-bar').style.background='var(--a3)';
-  }
-}
-
-function renderUploadResults(data,fname) {
-  document.getElementById('upload-progress').style.display='none';
-  document.getElementById('upload-results').style.display='block';
-  document.getElementById('up-time').textContent=new Date().toLocaleTimeString()+' — '+fname;
-  const br=data.budget_recommendation,ss=data.score_stats;
-  document.getElementById('up-kpis').innerHTML=`
-    <div class="kpi g"><div class="kl">Users scored</div><div class="kv green">${data.total_users?.toLocaleString()}</div><div class="ks">From uploaded file</div></div>
-    <div class="kpi g"><div class="kl">Persuadables found</div><div class="kv green">${data.segments?.Persuadables?.count?.toLocaleString()}</div><div class="ks">${data.segments?.Persuadables?.pct}% of total</div></div>
-    <div class="kpi a"><div class="kl">Anomalies</div><div class="kv" style="color:${data.anomalies?.length>0?'var(--a4)':'var(--a2)'}">${data.anomalies?.length||0}</div><div class="ks">${data.anomalies?.length>0?'Review required':'All clear'}</div></div>
-    <div class="kpi b"><div class="kl">Recommended budget</div><div class="kv">$${br?.recommended_budget?.toLocaleString()}</div><div class="ks">Expected ROI: ${br?.expected_roi}</div></div>`;
-  const sc={'Persuadables':{bg:'rgba(0,200,150,.06)',bd:'rgba(0,200,150,.2)',tx:'#00c896',tag:'▲ Target first'},'Sure Things':{bg:'rgba(79,127,255,.06)',bd:'rgba(79,127,255,.2)',tx:'#4f7fff',tag:'→ Exclude'},'Sleeping Dogs':{bg:'rgba(255,179,71,.06)',bd:'rgba(255,179,71,.2)',tx:'#ffb347',tag:'✕ Avoid'},'Lost Causes':{bg:'rgba(255,107,107,.06)',bd:'rgba(255,107,107,.2)',tx:'#ff6b6b',tag:'✕ Exclude'}};
-  document.getElementById('new-segs').innerHTML=Object.entries(data.segments).map(([n,i])=>{const c=sc[n]||{};return `<div style="border-radius:10px;padding:14px;background:${c.bg};border:1px solid ${c.bd}"><div style="font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:${c.tx};margin-bottom:4px">${n}</div><div style="font-size:26px;font-weight:700;font-family:var(--fm);color:var(--tx)">${i.pct}%</div><div style="font-size:11px;color:var(--mu)">${i.count?.toLocaleString()} users</div><div style="display:inline-block;font-size:10px;font-weight:600;margin-top:6px;padding:2px 7px;border-radius:4px;background:${c.bg};color:${c.tx};border:1px solid ${c.bd}">${c.tag}</div></div>`;}).join('');
-  document.getElementById('bud-rec').innerHTML=`Target <strong>${br?.n_users?.toLocaleString()} Persuadables</strong> with budget <strong>$${br?.recommended_budget?.toLocaleString()}</strong>. Expected ROI: <strong style="color:var(--a2)">${br?.expected_roi}</strong>`;
-  const ab=document.getElementById('anom-box');
-  if(!data.anomalies||data.anomalies.length===0){
-    ab.innerHTML=`<div style="background:rgba(0,200,150,.06);border:1px solid rgba(0,200,150,.2);border-radius:8px;padding:12px 16px;color:var(--a2);font-size:13px">✓ No anomalies detected — data quality looks good</div>`;
-  }else{
-    ab.innerHTML=data.anomalies.map(a=>`<div style="background:rgba(255,179,71,.06);border:1px solid rgba(255,179,71,.2);border-radius:8px;padding:12px 16px;margin-bottom:8px;font-size:12px"><div style="display:flex;align-items:center;gap:8px;margin-bottom:4px"><span style="background:rgba(255,179,71,.2);color:var(--a4);font-size:10px;font-weight:700;padding:2px 7px;border-radius:4px">${a.severity}</span><strong style="color:var(--tx)">${a.type}</strong></div><div style="color:var(--mu)">${a.message}</div><div style="color:var(--a4);margin-top:4px">→ ${a.action}</div></div>`).join('');
-  }
-  document.getElementById('score-stats').innerHTML=[
-    ['Mean score',ss?.mean],['Std dev',ss?.std],['Min score',ss?.min],['Max score',ss?.max]
-  ].map(([l,v])=>`<div style="background:var(--sf2);border-radius:8px;padding:10px;text-align:center"><div style="font-size:9px;color:var(--mu);text-transform:uppercase;margin-bottom:3px">${l}</div><div style="font-size:16px;font-weight:600;font-family:var(--fm)">${v}</div></div>`).join('');
-  document.getElementById('top-tbl').innerHTML=data.top_users.map(u=>`<tr><td><span style="color:var(--a4);font-weight:700">${u.rank}</span></td><td>${u.client_id||'–'}</td><td style="color:var(--a2);font-weight:600">${u.uplift_score}</td><td>$${u.total_spend?.toLocaleString()}</td><td>${u.recency_days}</td><td>${u.burn_rate??'–'}</td><td><span style="background:rgba(0,200,150,.12);color:var(--a2);font-size:10px;font-weight:600;padding:2px 8px;border-radius:4px">Target ✦</span></td></tr>`).join('');
-}
-function resetUpload() {
-  document.getElementById('dropzone').style.display='block';
-  document.getElementById('upload-progress').style.display='none';
-  document.getElementById('upload-results').style.display='none';
-  document.getElementById('file-input').value='';
-}
 
 // ══════════════════════════════════
 // DASHBOARD INIT & CHARTS
@@ -921,6 +840,38 @@ function toggleTheme() {
   const T=tc();
   Object.values(CH).forEach(ch=>{const s=ch.options.scales;if(!s)return;['x','y'].forEach(ax=>{if(!s[ax])return;if(s[ax].grid)s[ax].grid.color=T.g;if(s[ax].ticks)s[ax].ticks.color=T.t;if(s[ax].title)s[ax].title.color=T.t;});ch.update('none');});
 }
+
+// ══════════════════════════════════
+// SETTINGS MODAL
+// ══════════════════════════════════
+function openSettings() {
+  const modal = document.getElementById('settings-modal');
+  const input = document.getElementById('api-key-input');
+  input.value = localStorage.getItem('deepseek_api_key') || '';
+  modal.classList.add('open');
+}
+
+function closeSettings() {
+  document.getElementById('settings-modal').classList.remove('open');
+}
+
+function saveSettings() {
+  const apiKey = document.getElementById('api-key-input').value.trim();
+  if (apiKey) {
+    localStorage.setItem('deepseek_api_key', apiKey);
+    closeSettings();
+    addMsg('API key saved successfully! You can now use the AI agent.', 'ai');
+  } else {
+    alert('Please enter a valid API key');
+  }
+}
+
+// Close modal on backdrop click
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('settings-modal').addEventListener('click', (e) => {
+    if (e.target.id === 'settings-modal') closeSettings();
+  });
+});
 
 init();
 </script>
